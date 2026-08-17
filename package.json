@@ -1,0 +1,17 @@
+{
+    "name": "@onemindos/omos-nats",
+    "version": "1.0.0",
+    "description": "OneMind OS — NATS fabric operator console for CloudTAK: Wire tap, Bus topology, Streams, KV, Security audit",
+    "type": "module",
+    "main": "index.ts",
+    "peerDependencies": {
+        "@tak-ps/cloudtak": "*",
+        "vue": "^3.0.0"
+    },
+    "devDependencies": {
+        "@tak-ps/cloudtak": "^13.66.1",
+        "nats.ws": "^1.30.3",
+        "typescript": "^5.0.0",
+        "vue": "^3.5.0"
+    }
+}
