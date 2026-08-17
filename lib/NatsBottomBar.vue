@@ -1,12 +1,16 @@
 <template>
-    <div class='nats-bb' :class='status' :title='`NATS: ${status}${rtt ? ` · ${rtt}ms` : ''}`'>
+    <div
+        class='nats-bb'
+        :class='status'
+        :title='`NATS: ${status}${rtt ? ` · ${rtt}ms` : ""}`'
+    >
         <Radio :size='14' />
         <span class='nats-bb-label'>NATS</span>
         <div class='nats-bb-dot' />
     </div>
 </template>
 
-<script setup lang="ts">
+<script setup lang='ts'>
 import { Radio } from 'lucide-vue-next';
 import { useNatsStore } from './stores/nats.store';
 const { status, rtt } = useNatsStore();

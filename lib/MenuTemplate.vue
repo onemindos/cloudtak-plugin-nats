@@ -1,9 +1,19 @@
 <template>
     <div class='menu-template'>
         <div class='mt-header'>
-            <button v-if='backType !== 'none'' class='mt-back' @click='handleBack'>
-                <X v-if='backType === 'close'' :size='16' />
-                <ArrowLeft v-else :size='16' />
+            <button
+                v-if='backType !== "none"'
+                class='mt-back'
+                @click='handleBack'
+            >
+                <X
+                    v-if='backType === "close"'
+                    :size='16'
+                />
+                <ArrowLeft
+                    v-else
+                    :size='16'
+                />
             </button>
             <span class='mt-name'>{{ name }}</span>
         </div>
@@ -13,10 +23,10 @@
     </div>
 </template>
 
-<script setup lang="ts">
+<script setup lang='ts'>
 import { X, ArrowLeft } from 'lucide-vue-next';
 
-const props = withDefaults(defineProps<{
+withDefaults(defineProps<{
     name: string;
     backType?: 'close' | 'back' | 'none';
 }>(), { backType: 'close' });

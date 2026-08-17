@@ -9,33 +9,42 @@
                 :class='{ active: activeTab === tab.id }'
                 @click='activeTab = tab.id'
             >
-                <component :is='tab.icon' :size='12' />
+                <component
+                    :is='tab.icon'
+                    :size='12'
+                />
                 {{ tab.label }}
             </button>
             <div class='nc-tabs-spacer' />
             <!-- NATS connection status pill -->
-            <div class='nc-status' :class='status'>
+            <div
+                class='nc-status'
+                :class='status'
+            >
                 <div class='nc-status-dot' />
                 <span>{{ statusLabel }}</span>
-                <span v-if='rtt' class='nc-rtt'>{{ rtt }}ms</span>
+                <span
+                    v-if='rtt'
+                    class='nc-rtt'
+                >{{ rtt }}ms</span>
             </div>
         </div>
 
         <!-- ── Tab content ──────────────────────────────────────────────────── -->
         <div class='nc-body'>
-            <WireTab         v-if='activeTab === 'wire'' />
-            <SecurityTab     v-if='activeTab === 'security'' />
-            <TopologyTab     v-if='activeTab === 'topology'' />
-            <ConnectionsTab  v-if='activeTab === 'connections'' />
-            <StreamsTab      v-if='activeTab === 'streams'' />
-            <KVTab           v-if='activeTab === 'kv'' />
-            <PublishTab      v-if='activeTab === 'publish'' />
-            <NatsSettings    v-if='activeTab === 'settings'' />
+            <WireTab v-if='activeTab === "wire"' />
+            <SecurityTab v-if='activeTab === "security"' />
+            <TopologyTab v-if='activeTab === "topology"' />
+            <ConnectionsTab v-if='activeTab === "connections"' />
+            <StreamsTab v-if='activeTab === "streams"' />
+            <KVTab v-if='activeTab === "kv"' />
+            <PublishTab v-if='activeTab === "publish"' />
+            <NatsSettings v-if='activeTab === "settings"' />
         </div>
     </div>
 </template>
 
-<script setup lang="ts">
+<script setup lang='ts'>
 import { ref, computed } from 'vue';
 import {
     Radio, Shield, Network, Link2, Layers, Database, Settings, Send

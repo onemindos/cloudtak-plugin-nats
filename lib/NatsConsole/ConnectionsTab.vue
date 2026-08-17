@@ -1,46 +1,87 @@
 <template>
     <div class='conn-root'>
         <div class='conn-toolbar'>
-            <Link2 :size='14' class='conn-icon' />
+            <Link2
+                :size='14'
+                class='conn-icon'
+            />
             <span class='conn-title'>Connections</span>
             <div class='conn-input-wrap'>
-                <Search :size='12' class='conn-search-icon' />
-                <input v-model='filter' class='conn-search' placeholder='filter by name, IP, account…' />
+                <Search
+                    :size='12'
+                    class='conn-search-icon'
+                />
+                <input
+                    v-model='filter'
+                    class='conn-search'
+                    placeholder='filter by name, IP, account…'
+                />
             </div>
             <div class='conn-spacer' />
             <span class='conn-count'>{{ filtered.length }} / {{ connections.length }}</span>
-            <button class='conn-btn' :disabled='loading' @click='refresh'>
-                <RefreshCw :size='12' :class='{ spin: loading }' />
+            <button
+                class='conn-btn'
+                :disabled='loading'
+                @click='refresh'
+            >
+                <RefreshCw
+                    :size='12'
+                    :class='{ spin: loading }'
+                />
             </button>
         </div>
 
-        <div v-if='error' class='conn-error'><AlertCircle :size='13' /> {{ error }}</div>
-
-        <div v-if='!nc' class='conn-empty'>
-            <Link2 :size='28' style='opacity:0.3' /><p>Not connected to NATS.</p>
+        <div
+            v-if='error'
+            class='conn-error'
+        >
+            <AlertCircle :size='13' /> {{ error }}
         </div>
 
-        <div v-else class='conn-table-wrap'>
+        <div
+            v-if='!nc'
+            class='conn-empty'
+        >
+            <Link2
+                :size='28'
+                style='opacity:0.3'
+            /><p>Not connected to NATS.</p>
+        </div>
+
+        <div
+            v-else
+            class='conn-table-wrap'
+        >
             <table class='conn-table'>
                 <thead>
                     <tr>
                         <th></th>
-                        <th @click='sortBy('name')'>Name <SortIcon col='name' /></th>
-                        <th @click='sortBy('ip')'>Client IP <SortIcon col='ip' /></th>
-                        <th @click='sortBy('account')'>Account <SortIcon col='account' /></th>
-                        <th @click='sortBy('subscriptions')'>Subs <SortIcon col='subscriptions' /></th>
-                        <th @click='sortBy('msgsIn')'>In <SortIcon col='msgsIn' /></th>
-                        <th @click='sortBy('msgsOut')'>Out <SortIcon col='msgsOut' /></th>
-                        <th @click='sortBy('data')'>Data <SortIcon col='data' /></th>
+                        <th @click='sortBy("name")'>Name</th>
+                        <th @click='sortBy("ip")'>Client IP</th>
+                        <th @click='sortBy("account")'>Account</th>
+                        <th @click='sortBy("subscriptions")'>Subs</th>
+                        <th @click='sortBy("msgsIn")'>In</th>
+                        <th @click='sortBy("msgsOut")'>Out</th>
+                        <th @click='sortBy("data")'>Data</th>
                         <th>Lang</th>
                         <th>RTT</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <template v-for='conn in filtered' :key='conn.cid'>
-                        <tr class='conn-row' :class='{ expanded: expandedCid === conn.cid }' @click='toggleExpand(conn.cid)'>
+                    <template
+                        v-for='conn in filtered'
+                        :key='conn.cid'
+                    >
+                        <tr
+                            class='conn-row'
+                            :class='{ expanded: expandedCid === conn.cid }'
+                            @click='toggleExpand(conn.cid)'
+                        >
                             <td class='conn-expand-cell'>
-                                <ChevronRight :size='11' :class='{ rotated: expandedCid === conn.cid }' />
+                                <ChevronRight
+                                    :size='11'
+                                    :class='{ rotated: expandedCid === conn.cid }'
+                                />
                             </td>
                             <td class='mono'>{{ conn.name || `cid:${conn.cid}` }}</td>
                             <td class='mono muted'>{{ conn.ip }}:{{ conn.port }}</td>
@@ -52,7 +93,10 @@
                             <td><span class='conn-badge'>{{ conn.lang }}</span></td>
                             <td class='mono muted'>{{ conn.rtt ?? '—' }}</td>
                         </tr>
-                        <tr v-if='expandedCid === conn.cid' class='conn-detail-row'>
+                        <tr
+                            v-if='expandedCid === conn.cid'
+                            class='conn-detail-row'
+                        >
                             <td colspan='10'>
                                 <div class='conn-detail'>
                                     <div class='conn-detail-meta'>
@@ -60,16 +104,25 @@
                                         <span>uptime: <b>{{ conn.uptime ?? '—' }}</b></span>
                                         <span>subscriptions: <b>{{ conn.subscriptions }}</b></span>
                                     </div>
-                                    <div v-if='conn.subs?.length' class='conn-subs'>
+                                    <div
+                                        v-if='conn.subs?.length'
+                                        class='conn-subs'
+                                    >
                                         <span class='conn-subs-label'>Subscriptions:</span>
-                                        <code v-for='s in conn.subs' :key='s'>{{ s }}</code>
+                                        <code
+                                            v-for='s in conn.subs'
+                                            :key='s'
+                                        >{{ s }}</code>
                                     </div>
                                 </div>
                             </td>
                         </tr>
                     </template>
                     <tr v-if='!filtered.length && !loading'>
-                        <td colspan='10' class='conn-empty-row'>No connections match filter.</td>
+                        <td
+                            colspan='10'
+                            class='conn-empty-row'
+                        >No connections match filter.</td>
                     </tr>
                 </tbody>
             </table>
@@ -77,7 +130,7 @@
     </div>
 </template>
 
-<script setup lang="ts">
+<script setup lang='ts'>
 import { ref, computed, onMounted } from 'vue';
 import { Link2, RefreshCw, AlertCircle, Search, ChevronRight } from 'lucide-vue-next';
 import { createInbox } from 'nats.ws';
@@ -178,9 +231,6 @@ function formatNum(n: number) {
     if (n >= 1_000)     return `${(n/1_000).toFixed(1)}K`;
     return String(n);
 }
-
-// SortIcon inline component
-const SortIcon = { props: ['col'], template: '' }; // visual only placeholder
 
 onMounted(refresh);
 </script>

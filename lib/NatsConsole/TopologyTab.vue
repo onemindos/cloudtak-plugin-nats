@@ -1,25 +1,49 @@
 <template>
     <div class='topology-root'>
         <div class='topo-toolbar'>
-            <Network :size='14' class='topo-icon' />
+            <Network
+                :size='14'
+                class='topo-icon'
+            />
             <span class='topo-title'>Topology</span>
             <div class='topo-spacer' />
-            <button class='topo-btn' :disabled='loading' @click='refresh'>
-                <RefreshCw :size='12' :class='{ spin: loading }' />
+            <button
+                class='topo-btn'
+                :disabled='loading'
+                @click='refresh'
+            >
+                <RefreshCw
+                    :size='12'
+                    :class='{ spin: loading }'
+                />
                 Refresh
             </button>
         </div>
 
-        <div v-if='error' class='topo-error'>
+        <div
+            v-if='error'
+            class='topo-error'
+        >
             <AlertCircle :size='13' /> {{ error }}
         </div>
 
         <!-- Server cards -->
-        <div class='topo-cards' v-if='servers.length'>
-            <div v-for='s in servers' :key='s.id' class='topo-card' :class='{ primary: s.isPrimary }'>
+        <div
+            v-if='servers.length'
+            class='topo-cards'
+        >
+            <div
+                v-for='s in servers'
+                :key='s.id'
+                class='topo-card'
+                :class='{ primary: s.isPrimary }'
+            >
                 <div class='topo-card-header'>
                     <span class='topo-card-name'>{{ s.name }}</span>
-                    <span v-if='s.isPrimary' class='topo-primary-badge'>PRIMARY</span>
+                    <span
+                        v-if='s.isPrimary'
+                        class='topo-primary-badge'
+                    >PRIMARY</span>
                     <span class='topo-card-version'>v{{ s.version }}</span>
                 </div>
                 <div class='topo-card-meta'>
@@ -38,11 +62,17 @@
                 </div>
                 <div class='topo-card-stats'>
                     <div class='topo-stat'>
-                        <ArrowDown :size='10' class='stat-in' />
+                        <ArrowDown
+                            :size='10'
+                            class='stat-in'
+                        />
                         <span>{{ formatNum(s.msgsIn) }}</span>
                     </div>
                     <div class='topo-stat'>
-                        <ArrowUp :size='10' class='stat-out' />
+                        <ArrowUp
+                            :size='10'
+                            class='stat-out'
+                        />
                         <span>{{ formatNum(s.msgsOut) }}</span>
                     </div>
                     <div class='topo-stat host'>
@@ -50,26 +80,46 @@
                     </div>
                 </div>
                 <!-- Route peers -->
-                <div v-if='s.peers.length' class='topo-peers'>
+                <div
+                    v-if='s.peers.length'
+                    class='topo-peers'
+                >
                     <span class='topo-peers-label'>Routes to:</span>
-                    <span v-for='peer in s.peers' :key='peer' class='topo-peer-tag'>{{ peer }}</span>
+                    <span
+                        v-for='peer in s.peers'
+                        :key='peer'
+                        class='topo-peer-tag'
+                    >{{ peer }}</span>
                 </div>
             </div>
         </div>
 
-        <div v-else-if='!loading' class='topo-empty'>
-            <Network :size='28' style='opacity:0.3' />
+        <div
+            v-else-if='!loading'
+            class='topo-empty'
+        >
+            <Network
+                :size='28'
+                style='opacity:0.3'
+            />
             <p>No servers discovered.<br>
                Check that <code>nats-mon.onemindos.dev</code> is reachable.</p>
         </div>
 
-        <div v-if='loading && !servers.length' class='topo-loading'>
-            <RefreshCw :size='20' class='spin' style='opacity:0.4' />
+        <div
+            v-if='loading && !servers.length'
+            class='topo-loading'
+        >
+            <RefreshCw
+                :size='20'
+                class='spin'
+                style='opacity:0.4'
+            />
         </div>
     </div>
 </template>
 
-<script setup lang="ts">
+<script setup lang='ts'>
 import { ref, onMounted } from 'vue';
 import { Network, RefreshCw, AlertCircle, Link2, Users, ArrowDown, ArrowUp, GitBranch, Leaf } from 'lucide-vue-next';
 

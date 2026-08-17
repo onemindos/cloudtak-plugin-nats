@@ -1,7 +1,10 @@
 <template>
     <div class='nats-settings'>
         <div class='ns-header'>
-            <Settings :size='14' class='ns-icon' />
+            <Settings
+                :size='14'
+                class='ns-icon'
+            />
             <span class='ns-title'>NATS Connections</span>
         </div>
 
@@ -11,7 +14,7 @@
                 v-for='p in profiles'
                 :key='p.id'
                 class='ns-profile'
-                :class='{ active: p.id === activeProfileId, connected: status === 'connected' && p.id === activeProfileId }'
+                :class='{ active: p.id === activeProfileId, connected: status === "connected" && p.id === activeProfileId }'
             >
                 <div class='nsp-row'>
                     <div class='nsp-info'>
@@ -20,9 +23,9 @@
                     </div>
                     <div class='nsp-actions'>
                         <button
-                            v-if='p.id !== activeProfileId || status !== 'connected''
+                            v-if='p.id !== activeProfileId || status !== "connected"'
                             class='nsp-btn nsp-btn-connect'
-                            :disabled='status === 'connecting''
+                            :disabled='status === "connecting"'
                             @click='connectTo(p.id)'
                         >Connect</button>
                         <button
@@ -30,8 +33,15 @@
                             class='nsp-btn nsp-btn-disconnect'
                             @click='disconnect()'
                         >Disconnect</button>
-                        <button class='nsp-btn nsp-btn-edit' @click='startEdit(p)'><Pencil :size='11' /></button>
-                        <button class='nsp-btn nsp-btn-del' :disabled='profiles.length <= 1' @click='removeProfile(p.id)'><Trash2 :size='11' /></button>
+                        <button
+                            class='nsp-btn nsp-btn-edit'
+                            @click='startEdit(p)'
+                        ><Pencil :size='11' /></button>
+                        <button
+                            class='nsp-btn nsp-btn-del'
+                            :disabled='profiles.length <= 1'
+                            @click='removeProfile(p.id)'
+                        ><Trash2 :size='11' /></button>
                     </div>
                 </div>
             </div>
@@ -41,30 +51,61 @@
         <div class='ns-form'>
             <div class='ns-form-title'>{{ editingId ? 'Edit Profile' : 'Add Profile' }}</div>
             <div class='ns-fields'>
-                <input v-model='form.label' class='ns-input' placeholder='Label (e.g. OneMind Hub)' />
-                <input v-model='form.wsUrl' class='ns-input' placeholder='WebSocket URL (e.g. wss://ws.onemindos.dev)' />
-                <input v-model='form.user'  class='ns-input' placeholder='User (optional)' />
-                <input v-model='form.pass'  class='ns-input' type='password' placeholder='Password (optional)' />
+                <input
+                    v-model='form.label'
+                    class='ns-input'
+                    placeholder='Label (e.g. OneMind Hub)'
+                />
+                <input
+                    v-model='form.wsUrl'
+                    class='ns-input'
+                    placeholder='WebSocket URL (e.g. wss://ws.onemindos.dev)'
+                />
+                <input
+                    v-model='form.user'
+                    class='ns-input'
+                    placeholder='User (optional)'
+                />
+                <input
+                    v-model='form.pass'
+                    class='ns-input'
+                    type='password'
+                    placeholder='Password (optional)'
+                />
             </div>
             <div class='ns-form-actions'>
-                <button class='ns-btn ns-btn-save' :disabled='!form.label || !form.wsUrl' @click='saveForm'>
+                <button
+                    class='ns-btn ns-btn-save'
+                    :disabled='!form.label || !form.wsUrl'
+                    @click='saveForm'
+                >
                     {{ editingId ? 'Update' : 'Add' }}
                 </button>
-                <button v-if='editingId' class='ns-btn' @click='cancelEdit'>Cancel</button>
+                <button
+                    v-if='editingId'
+                    class='ns-btn'
+                    @click='cancelEdit'
+                >Cancel</button>
             </div>
         </div>
 
         <!-- RTT / error display -->
-        <div v-if='status === 'error' && error' class='ns-error'>
+        <div
+            v-if='status === "error" && error'
+            class='ns-error'
+        >
             <AlertCircle :size='13' /> {{ error }}
         </div>
-        <div v-if='status === 'connected' && rtt' class='ns-rtt'>
+        <div
+            v-if='status === "connected" && rtt'
+            class='ns-rtt'
+        >
             RTT: {{ rtt }}ms
         </div>
     </div>
 </template>
 
-<script setup lang="ts">
+<script setup lang='ts'>
 import { ref, reactive } from 'vue';
 import { Settings, Pencil, Trash2, AlertCircle } from 'lucide-vue-next';
 import { useNatsStore } from '../stores/nats.store';

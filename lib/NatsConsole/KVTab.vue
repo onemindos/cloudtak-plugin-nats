@@ -2,63 +2,126 @@
     <div class='kv-root'>
         <!-- Header -->
         <div class='kv-toolbar'>
-            <Archive :size='14' class='kv-icon' />
+            <Archive
+                :size='14'
+                class='kv-icon'
+            />
             <span class='kv-title'>KV Buckets</span>
             <div class='conn-spacer' />
             <span class='kv-count'>{{ buckets.length }} buckets</span>
-            <button class='kv-btn' :disabled='loading' @click='refresh'>
-                <RefreshCw :size='12' :class='{ spin: loading }' />
+            <button
+                class='kv-btn'
+                :disabled='loading'
+                @click='refresh'
+            >
+                <RefreshCw
+                    :size='12'
+                    :class='{ spin: loading }'
+                />
                 Refresh
             </button>
         </div>
 
-        <div v-if='error' class='kv-error'><AlertCircle :size='13' /> {{ error }}</div>
-        <div v-if='!nc' class='kv-empty'><Archive :size='28' style='opacity:0.3' /><p>Not connected.</p></div>
+        <div
+            v-if='error'
+            class='kv-error'
+        >
+            <AlertCircle :size='13' /> {{ error }}
+        </div>
+        <div
+            v-if='!nc'
+            class='kv-empty'
+        >
+            <Archive
+                :size='28'
+                style='opacity:0.3'
+            /><p>Not connected.</p>
+        </div>
 
         <!-- Bucket list -->
-        <div v-else-if='!browserBucket' class='kv-bucket-list'>
-            <div v-for='b in buckets' :key='b.name' class='bucket-row' @click='openBrowser(b.name)'>
-                <Key :size='12' style='color:#f59e0b;flex-shrink:0' />
+        <div
+            v-else-if='!browserBucket'
+            class='kv-bucket-list'
+        >
+            <div
+                v-for='b in buckets'
+                :key='b.name'
+                class='bucket-row'
+                @click='openBrowser(b.name)'
+            >
+                <Key
+                    :size='12'
+                    style='color:#f59e0b;flex-shrink:0'
+                />
                 <span class='bucket-name'>{{ b.name.replace('KV_','') }}</span>
                 <span class='bucket-metric'>{{ b.keys }} keys</span>
                 <span class='bucket-metric'>{{ formatBytes(b.bytes) }}</span>
                 <span class='bucket-metric'>TTL {{ formatTTL(b.ttl) }}</span>
                 <span class='bucket-metric'>×{{ b.replicas }} replicas</span>
-                <ChevronRight :size='12' style='color:rgba(255,255,255,0.25);margin-left:auto' />
+                <ChevronRight
+                    :size='12'
+                    style='color:rgba(255,255,255,0.25);margin-left:auto'
+                />
             </div>
-            <div v-if='!buckets.length && !loading' class='kv-empty-inline'>
+            <div
+                v-if='!buckets.length && !loading'
+                class='kv-empty-inline'
+            >
                 No KV buckets found.<br>
                 <span style='font-size:10px'>KV buckets appear as streams named KV_*</span>
             </div>
         </div>
 
         <!-- Key browser -->
-        <div v-else class='kv-browser'>
+        <div
+            v-else
+            class='kv-browser'
+        >
             <div class='browser-header'>
-                <button class='kv-btn' @click='browserBucket = null'>
+                <button
+                    class='kv-btn'
+                    @click='browserBucket = null'
+                >
                     <ArrowLeft :size='12' /> Back
                 </button>
                 <span class='browser-title'>{{ browserBucket.replace('KV_','') }}</span>
                 <div class='conn-spacer' />
-                <button class='kv-btn' :disabled='loadingKeys' @click='loadKeys'>
-                    <RefreshCw :size='12' :class='{ spin: loadingKeys }' />
+                <button
+                    class='kv-btn'
+                    :disabled='loadingKeys'
+                    @click='loadKeys'
+                >
+                    <RefreshCw
+                        :size='12'
+                        :class='{ spin: loadingKeys }'
+                    />
                 </button>
             </div>
 
             <div class='browser-toolbar'>
-                <input v-model='keyFilter' class='kv-input' placeholder='filter keys…' />
+                <input
+                    v-model='keyFilter'
+                    class='kv-input'
+                    placeholder='filter keys…'
+                />
             </div>
 
             <div class='browser-body'>
                 <!-- Key list -->
                 <div class='key-list'>
-                    <div v-for='k in filteredKeys' :key='k'
-                         class='key-row'
-                         :class='{ active: selectedKey === k }'
-                         @click='selectKey(k)'>
+                    <div
+                        v-for='k in filteredKeys'
+                        :key='k'
+                        class='key-row'
+                        :class='{ active: selectedKey === k }'
+                        @click='selectKey(k)'
+                    >
                         <span class='key-name'>{{ k }}</span>
                     </div>
-                    <div v-if='!filteredKeys.length && !loadingKeys' class='kv-empty-inline'>No keys.</div>
+                    <div
+                        v-if='!filteredKeys.length && !loadingKeys'
+                        class='kv-empty-inline'
+                    >No keys.</div>
                 </div>
 
                 <!-- Value pane -->
@@ -66,21 +129,41 @@
                     <template v-if='selectedKey'>
                         <div class='val-toolbar'>
                             <span class='val-key-label'>{{ selectedKey }}</span>
-                            <button class='kv-btn danger' @click='deleteKey(selectedKey)' :disabled='deleting'>
+                            <button
+                                class='kv-btn danger'
+                                :disabled='deleting'
+                                @click='deleteKey(selectedKey)'
+                            >
                                 <Trash2 :size='11' /> {{ deleting ? '…' : 'Delete' }}
                             </button>
                         </div>
                         <pre class='val-body'>{{ keyValue ?? '…' }}</pre>
                     </template>
-                    <div v-else class='val-placeholder'>Select a key to view its value.</div>
+                    <div
+                        v-else
+                        class='val-placeholder'
+                    >Select a key to view its value.</div>
                 </div>
             </div>
 
             <!-- Put new key -->
             <div class='put-form'>
-                <input v-model='putKey' placeholder='key' class='kv-input kv-input-sm' />
-                <input v-model='putValue' placeholder='value (JSON or string)' class='kv-input kv-input-sm' style='flex:2' />
-                <button class='kv-btn' @click='putKV' :disabled='!putKey || putting'>
+                <input
+                    v-model='putKey'
+                    placeholder='key'
+                    class='kv-input kv-input-sm'
+                />
+                <input
+                    v-model='putValue'
+                    placeholder='value (JSON or string)'
+                    class='kv-input kv-input-sm'
+                    style='flex:2'
+                />
+                <button
+                    class='kv-btn'
+                    :disabled='!putKey || putting'
+                    @click='putKV'
+                >
                     <Plus :size='11' /> {{ putting ? '…' : 'Set' }}
                 </button>
             </div>
@@ -88,7 +171,7 @@
     </div>
 </template>
 
-<script setup lang="ts">
+<script setup lang='ts'>
 import { ref, computed, onMounted } from 'vue';
 import { Archive, RefreshCw, AlertCircle, ChevronRight, Key, Plus, Trash2, ArrowLeft } from 'lucide-vue-next';
 import { useNatsStore } from '../stores/nats.store';
@@ -177,7 +260,9 @@ async function loadKeys() {
         const result: string[] = [];
         for await (const k of iter) result.push(k);
         keys.value = result.sort();
-    } catch { keys.value = []; }
+    } catch { // ignore
+        keys.value = [];
+    }
     finally { loadingKeys.value = false; }
 }
 
@@ -192,7 +277,9 @@ async function selectKey(key: string) {
         if (entry?.value) {
             const text = new TextDecoder().decode(entry.value);
             try { keyValue.value = JSON.stringify(JSON.parse(text), null, 2); }
-            catch { keyValue.value = text; }
+            catch { // ignore
+                keyValue.value = text;
+            }
         } else {
             keyValue.value = '(empty)';
         }
@@ -211,7 +298,8 @@ async function putKV() {
         putKey.value   = '';
         putValue.value = '';
         await loadKeys();
-    } catch (_) {}
+    } catch { // ignore
+    }
     finally { putting.value = false; }
 }
 
@@ -225,7 +313,8 @@ async function deleteKey(key: string) {
         selectedKey.value = null;
         keyValue.value    = null;
         await loadKeys();
-    } catch (_) {}
+    } catch { // ignore
+    }
     finally { deleting.value = false; }
 }
 
