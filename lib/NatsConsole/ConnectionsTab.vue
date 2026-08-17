@@ -175,7 +175,7 @@ interface ConnectionInfo {
     lang: string; version: string; rtt?: string; uptime?: string; subs?: string[];
 }
 
-const { nc } = useNatsStore();
+const { nc, sc } = useNatsStore();
 const connections = ref<ConnectionInfo[]>([]);
 const loading     = ref(false);
 const error       = ref<string | null>(null);
