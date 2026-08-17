@@ -65,7 +65,7 @@
 <script setup lang='ts'>
 import { ref, computed } from 'vue';
 import { ChevronDown }  from 'lucide-vue-next';
-import type { TapFrame } from '../../composables/useNatsTap';
+import type { TapFrame } from '../composables/useNatsTap';
 import type { Badge }    from './wire.types';
 import { BADGE_STYLE, inferBadge } from './wire.types';
 

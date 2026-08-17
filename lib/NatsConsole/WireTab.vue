@@ -138,9 +138,9 @@
 <script setup lang='ts'>
 import { ref, computed, watch, nextTick } from 'vue';
 import { Radio, Trash2, Pause, Play, Plus, X } from 'lucide-vue-next';
-import { useNatsStore }  from '../../stores/nats.store';
-import { useNatsTap }    from '../../composables/useNatsTap';
-import type { TapFrame } from '../../composables/useNatsTap';
+import { useNatsStore }  from '../stores/nats.store';
+import { useNatsTap }    from '../composables/useNatsTap';
+import type { TapFrame } from '../composables/useNatsTap';
 import WireFrame         from './WireFrame.vue';
 import type { Badge }    from './wire.types';
 import { ALL_BADGES, BADGE_STYLE, inferBadge } from './wire.types';
