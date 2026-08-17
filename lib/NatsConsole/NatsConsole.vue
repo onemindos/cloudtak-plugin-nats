@@ -23,14 +23,14 @@
 
         <!-- ── Tab content ──────────────────────────────────────────────────── -->
         <div class="nc-body">
-            <WireTab     v-if="activeTab === 'wire'" />
-            <SecurityTab v-if="activeTab === 'security'" />
-            <NatsSettings v-if="activeTab === 'settings'" />
-            <!-- Placeholder stubs for upcoming tabs -->
-            <div v-if="activeTab === 'topology'"    class="nc-stub">Topology — coming soon</div>
-            <div v-if="activeTab === 'connections'" class="nc-stub">Connections — coming soon</div>
-            <div v-if="activeTab === 'streams'"     class="nc-stub">Streams — coming soon</div>
-            <div v-if="activeTab === 'kv'"          class="nc-stub">Key-Value — coming soon</div>
+            <WireTab         v-if="activeTab === 'wire'" />
+            <SecurityTab     v-if="activeTab === 'security'" />
+            <TopologyTab     v-if="activeTab === 'topology'" />
+            <ConnectionsTab  v-if="activeTab === 'connections'" />
+            <StreamsTab      v-if="activeTab === 'streams'" />
+            <KVTab           v-if="activeTab === 'kv'" />
+            <PublishTab      v-if="activeTab === 'publish'" />
+            <NatsSettings    v-if="activeTab === 'settings'" />
         </div>
     </div>
 </template>
@@ -38,22 +38,28 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import {
-    Radio, Shield, Network, Link2, Layers, Database, Settings
+    Radio, Shield, Network, Link2, Layers, Database, Settings, Send
 } from 'lucide-vue-next';
 import { useNatsStore } from '../stores/nats.store';
-import WireTab      from './WireTab.vue';
-import SecurityTab  from './SecurityTab.vue';
-import NatsSettings from './NatsSettings.vue';
+import WireTab        from './WireTab.vue';
+import SecurityTab    from './SecurityTab.vue';
+import TopologyTab    from './TopologyTab.vue';
+import ConnectionsTab from './ConnectionsTab.vue';
+import StreamsTab     from './StreamsTab.vue';
+import KVTab          from './KVTab.vue';
+import PublishTab     from './PublishTab.vue';
+import NatsSettings   from './NatsSettings.vue';
 
 const { status, rtt } = useNatsStore();
 
 const TABS = [
     { id: 'wire',        label: 'Wire',        icon: Radio    },
-    { id: 'security',    label: 'Security',    icon: Shield   },
     { id: 'topology',    label: 'Topology',    icon: Network  },
     { id: 'connections', label: 'Connections', icon: Link2    },
     { id: 'streams',     label: 'Streams',     icon: Layers   },
     { id: 'kv',          label: 'Key-Value',   icon: Database },
+    { id: 'publish',     label: 'Publish',     icon: Send     },
+    { id: 'security',    label: 'Security',    icon: Shield   },
     { id: 'settings',    label: 'Settings',    icon: Settings },
 ] as const;
 
