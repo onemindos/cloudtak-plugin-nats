@@ -12,11 +12,15 @@
                 <button
                     :class='{ active: mode === "publish" }'
                     @click='mode = "publish"'
-                >Publish</button>
+                >
+                    Publish
+                </button>
                 <button
                     :class='{ active: mode === "request" }'
                     @click='mode = "request"'
-                >Request</button>
+                >
+                    Request
+                </button>
             </div>
         </div>
 
@@ -42,7 +46,7 @@
                         v-model='subject'
                         class='pub-input mono'
                         placeholder='svc.orp.query'
-                    />
+                    >
                     <button
                         class='pub-btn icon-btn'
                         title='Suggestions'
@@ -77,7 +81,7 @@
                     class='pub-textarea mono'
                     rows='6'
                     placeholder='{"key": "value"}'
-                ></textarea>
+                />
             </div>
 
             <!-- headers -->
@@ -93,21 +97,25 @@
                             v-model='h.key'
                             class='pub-input mono hdr-key'
                             placeholder='Key'
-                        />
+                        >
                         <input
                             v-model='h.value'
                             class='pub-input mono hdr-val'
                             placeholder='Value'
-                        />
+                        >
                         <button
                             class='pub-btn icon-btn'
                             @click='removeHeader(h.id)'
-                        ><Trash2 :size='11' /></button>
+                        >
+                            <Trash2 :size='11' />
+                        </button>
                     </div>
                     <button
                         class='pub-btn hdr-add'
                         @click='addHeader'
-                    ><Plus :size='11' /> Add header</button>
+                    >
+                        <Plus :size='11' /> Add header
+                    </button>
                 </div>
             </div>
 
@@ -135,7 +143,9 @@
                     <div
                         v-if='result.inbox'
                         class='result-inbox mono'
-                    >Inbox: {{ result.inbox }}</div>
+                    >
+                        Inbox: {{ result.inbox }}
+                    </div>
                     <div
                         v-if='result.reply'
                         class='result-reply'
@@ -143,12 +153,16 @@
                         <div
                             class='pub-label'
                             style='margin-top:8px'
-                        >Reply</div>
+                        >
+                            Reply
+                        </div>
                         <pre class='reply-body mono'>{{ result.reply }}</pre>
                     </div>
                 </template>
                 <template v-else>
-                    <div class='result-err-line'><AlertCircle :size='12' /> {{ result.error }}</div>
+                    <div class='result-err-line'>
+                        <AlertCircle :size='12' /> {{ result.error }}
+                    </div>
                 </template>
             </div>
         </div>

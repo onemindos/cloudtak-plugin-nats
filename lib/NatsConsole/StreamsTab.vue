@@ -65,7 +65,9 @@
                     <button
                         class='sr-purge'
                         @click.stop='requestPurge(s.config.name)'
-                    ><Eraser :size='11' /></button>
+                    >
+                        <Eraser :size='11' />
+                    </button>
                 </div>
                 <div
                     v-if='expandedStream === s.config.name'
@@ -89,7 +91,9 @@
                         v-if='consumers.length'
                         class='sr-consumers'
                     >
-                        <div class='sr-label'>Consumers</div>
+                        <div class='sr-label'>
+                            Consumers
+                        </div>
                         <div
                             v-for='c in consumers'
                             :key='c.name'
@@ -104,7 +108,9 @@
                     <div
                         v-if='loadingConsumers'
                         class='sr-loading-consumers'
-                    >Loading consumers…</div>
+                    >
+                        Loading consumers…
+                    </div>
                 </div>
             </div>
             <div
@@ -130,7 +136,9 @@
                     <button
                         class='streams-btn'
                         @click='purgeTarget = null'
-                    >Cancel</button>
+                    >
+                        Cancel
+                    </button>
                     <button
                         class='streams-btn streams-btn-danger'
                         :disabled='purging'
@@ -163,7 +171,7 @@ interface StreamState {
 }
 interface StreamInfo { config: StreamConfig; state: StreamState }
 
-const { nc, sc } = useNatsStore();
+const { nc } = useNatsStore();
 const streams         = ref<StreamInfo[]>([]);
 const loading         = ref(false);
 const error           = ref<string | null>(null);

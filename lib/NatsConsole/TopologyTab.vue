@@ -102,8 +102,10 @@
                 :size='28'
                 style='opacity:0.3'
             />
-            <p>No servers discovered.<br>
-               Check that <code>nats-mon.onemindos.dev</code> is reachable.</p>
+            <p>
+                No servers discovered.<br>
+                Check that <code>nats-mon.onemindos.dev</code> is reachable.
+            </p>
         </div>
 
         <div

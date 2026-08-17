@@ -27,21 +27,29 @@
                             class='nsp-btn nsp-btn-connect'
                             :disabled='status === "connecting"'
                             @click='connectTo(p.id)'
-                        >Connect</button>
+                        >
+                            Connect
+                        </button>
                         <button
                             v-else
                             class='nsp-btn nsp-btn-disconnect'
                             @click='disconnect()'
-                        >Disconnect</button>
+                        >
+                            Disconnect
+                        </button>
                         <button
                             class='nsp-btn nsp-btn-edit'
                             @click='startEdit(p)'
-                        ><Pencil :size='11' /></button>
+                        >
+                            <Pencil :size='11' />
+                        </button>
                         <button
                             class='nsp-btn nsp-btn-del'
                             :disabled='profiles.length <= 1'
                             @click='removeProfile(p.id)'
-                        ><Trash2 :size='11' /></button>
+                        >
+                            <Trash2 :size='11' />
+                        </button>
                     </div>
                 </div>
             </div>
@@ -49,29 +57,31 @@
 
         <!-- Add / Edit form -->
         <div class='ns-form'>
-            <div class='ns-form-title'>{{ editingId ? 'Edit Profile' : 'Add Profile' }}</div>
+            <div class='ns-form-title'>
+                {{ editingId ? 'Edit Profile' : 'Add Profile' }}
+            </div>
             <div class='ns-fields'>
                 <input
                     v-model='form.label'
                     class='ns-input'
                     placeholder='Label (e.g. OneMind Hub)'
-                />
+                >
                 <input
                     v-model='form.wsUrl'
                     class='ns-input'
                     placeholder='WebSocket URL (e.g. wss://ws.onemindos.dev)'
-                />
+                >
                 <input
                     v-model='form.user'
                     class='ns-input'
                     placeholder='User (optional)'
-                />
+                >
                 <input
                     v-model='form.pass'
                     class='ns-input'
                     type='password'
                     placeholder='Password (optional)'
-                />
+                >
             </div>
             <div class='ns-form-actions'>
                 <button
@@ -85,7 +95,9 @@
                     v-if='editingId'
                     class='ns-btn'
                     @click='cancelEdit'
-                >Cancel</button>
+                >
+                    Cancel
+                </button>
             </div>
         </div>
 

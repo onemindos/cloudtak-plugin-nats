@@ -15,7 +15,7 @@
                     v-model='filter'
                     class='conn-search'
                     placeholder='filter by name, IP, account…'
-                />
+                >
             </div>
             <div class='conn-spacer' />
             <span class='conn-count'>{{ filtered.length }} / {{ connections.length }}</span>
@@ -55,14 +55,28 @@
             <table class='conn-table'>
                 <thead>
                     <tr>
-                        <th></th>
-                        <th @click='sortBy("name")'>Name</th>
-                        <th @click='sortBy("ip")'>Client IP</th>
-                        <th @click='sortBy("account")'>Account</th>
-                        <th @click='sortBy("subscriptions")'>Subs</th>
-                        <th @click='sortBy("msgsIn")'>In</th>
-                        <th @click='sortBy("msgsOut")'>Out</th>
-                        <th @click='sortBy("data")'>Data</th>
+                        <th />
+                        <th @click='sortBy("name")'>
+                            Name
+                        </th>
+                        <th @click='sortBy("ip")'>
+                            Client IP
+                        </th>
+                        <th @click='sortBy("account")'>
+                            Account
+                        </th>
+                        <th @click='sortBy("subscriptions")'>
+                            Subs
+                        </th>
+                        <th @click='sortBy("msgsIn")'>
+                            In
+                        </th>
+                        <th @click='sortBy("msgsOut")'>
+                            Out
+                        </th>
+                        <th @click='sortBy("data")'>
+                            Data
+                        </th>
                         <th>Lang</th>
                         <th>RTT</th>
                     </tr>
@@ -83,15 +97,31 @@
                                     :class='{ rotated: expandedCid === conn.cid }'
                                 />
                             </td>
-                            <td class='mono'>{{ conn.name || `cid:${conn.cid}` }}</td>
-                            <td class='mono muted'>{{ conn.ip }}:{{ conn.port }}</td>
-                            <td class='muted'>{{ conn.account }}</td>
-                            <td class='mono'>{{ conn.subscriptions }}</td>
-                            <td class='mono'>{{ formatNum(conn.msgsIn) }}</td>
-                            <td class='mono'>{{ formatNum(conn.msgsOut) }}</td>
-                            <td class='mono'>{{ formatBytes(conn.bytesIn + conn.bytesOut) }}</td>
+                            <td class='mono'>
+                                {{ conn.name || `cid:${conn.cid}` }}
+                            </td>
+                            <td class='mono muted'>
+                                {{ conn.ip }}:{{ conn.port }}
+                            </td>
+                            <td class='muted'>
+                                {{ conn.account }}
+                            </td>
+                            <td class='mono'>
+                                {{ conn.subscriptions }}
+                            </td>
+                            <td class='mono'>
+                                {{ formatNum(conn.msgsIn) }}
+                            </td>
+                            <td class='mono'>
+                                {{ formatNum(conn.msgsOut) }}
+                            </td>
+                            <td class='mono'>
+                                {{ formatBytes(conn.bytesIn + conn.bytesOut) }}
+                            </td>
                             <td><span class='conn-badge'>{{ conn.lang }}</span></td>
-                            <td class='mono muted'>{{ conn.rtt ?? '—' }}</td>
+                            <td class='mono muted'>
+                                {{ conn.rtt ?? '—' }}
+                            </td>
                         </tr>
                         <tr
                             v-if='expandedCid === conn.cid'
@@ -122,7 +152,9 @@
                         <td
                             colspan='10'
                             class='conn-empty-row'
-                        >No connections match filter.</td>
+                        >
+                            No connections match filter.
+                        </td>
                     </tr>
                 </tbody>
             </table>

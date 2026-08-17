@@ -16,7 +16,7 @@
                     class='wire-input'
                     placeholder='subject pattern (e.g. agents.> or >)'
                     @keydown.enter='addSubscription'
-                />
+                >
                 <button
                     class='wire-btn wire-btn-add'
                     :disabled='!newSubject.trim() || !nc'
@@ -40,7 +40,9 @@
                     <button
                         class='wire-sub-remove'
                         @click='removeSubscription(sub)'
-                    ><X :size='10' /></button>
+                    >
+                        <X :size='10' />
+                    </button>
                 </div>
             </div>
 
@@ -78,7 +80,9 @@
                         :class='{ inactive: !activeBadges.has(b) }'
                         :style='{ color: BADGE_STYLE[b].color, background: activeBadges.has(b) ? BADGE_STYLE[b].bg : "transparent" }'
                         @click='toggleBadge(b)'
-                    >{{ b }}</button>
+                    >
+                        {{ b }}
+                    </button>
                 </div>
             </div>
         </div>
@@ -104,8 +108,10 @@
                 :size='28'
                 style='opacity:0.3'
             />
-            <p>Add a subject pattern above to start tapping.<br>
-               Try <code>></code> for everything or <code>agents.></code> for agents.</p>
+            <p>
+                Add a subject pattern above to start tapping.<br>
+                Try <code>></code> for everything or <code>agents.></code> for agents.
+            </p>
         </div>
 
         <!-- ── Frame list ───────────────────────────────────────────────────── -->

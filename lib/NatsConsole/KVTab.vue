@@ -103,7 +103,7 @@
                     v-model='keyFilter'
                     class='kv-input'
                     placeholder='filter keys…'
-                />
+                >
             </div>
 
             <div class='browser-body'>
@@ -121,7 +121,9 @@
                     <div
                         v-if='!filteredKeys.length && !loadingKeys'
                         class='kv-empty-inline'
-                    >No keys.</div>
+                    >
+                        No keys.
+                    </div>
                 </div>
 
                 <!-- Value pane -->
@@ -142,7 +144,9 @@
                     <div
                         v-else
                         class='val-placeholder'
-                    >Select a key to view its value.</div>
+                    >
+                        Select a key to view its value.
+                    </div>
                 </div>
             </div>
 
@@ -152,13 +156,13 @@
                     v-model='putKey'
                     placeholder='key'
                     class='kv-input kv-input-sm'
-                />
+                >
                 <input
                     v-model='putValue'
                     placeholder='value (JSON or string)'
                     class='kv-input kv-input-sm'
                     style='flex:2'
-                />
+                >
                 <button
                     class='kv-btn'
                     :disabled='!putKey || putting'
