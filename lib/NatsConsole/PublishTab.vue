@@ -1,78 +1,78 @@
 <template>
-    <div class="pub-root">
-        <div class="pub-toolbar">
-            <Send :size="14" class="pub-icon" />
-            <span class="pub-title">Publish / Request</span>
-            <div class="conn-spacer" />
+    <div class='pub-root'>
+        <div class='pub-toolbar'>
+            <Send :size='14' class='pub-icon' />
+            <span class='pub-title'>Publish / Request</span>
+            <div class='conn-spacer' />
             <!-- mode toggle -->
-            <div class="mode-toggle">
-                <button :class="{ active: mode === 'publish' }" @click="mode = 'publish'">Publish</button>
-                <button :class="{ active: mode === 'request' }" @click="mode = 'request'">Request</button>
+            <div class='mode-toggle'>
+                <button :class='{ active: mode === 'publish' }' @click='mode = 'publish''>Publish</button>
+                <button :class='{ active: mode === 'request' }' @click='mode = 'request''>Request</button>
             </div>
         </div>
 
-        <div v-if="!nc" class="pub-empty"><Send :size="28" style="opacity:0.3" /><p>Not connected.</p></div>
+        <div v-if='!nc' class='pub-empty'><Send :size='28' style='opacity:0.3' /><p>Not connected.</p></div>
 
-        <div v-else class="pub-body">
+        <div v-else class='pub-body'>
             <!-- subject input -->
-            <div class="pub-field">
-                <label class="pub-label">Subject</label>
-                <div class="subject-row">
-                    <input v-model="subject" class="pub-input mono" placeholder="svc.orp.query" />
-                    <button class="pub-btn icon-btn" title="Suggestions" @click="showSuggestions = !showSuggestions">
-                        <Zap :size="12" />
+            <div class='pub-field'>
+                <label class='pub-label'>Subject</label>
+                <div class='subject-row'>
+                    <input v-model='subject' class='pub-input mono' placeholder='svc.orp.query' />
+                    <button class='pub-btn icon-btn' title='Suggestions' @click='showSuggestions = !showSuggestions'>
+                        <Zap :size='12' />
                     </button>
                 </div>
-                <div v-if="showSuggestions" class="suggestions">
-                    <button v-for="s in suggestions" :key="s" class="suggestion" @click="subject = s; showSuggestions = false">
+                <div v-if='showSuggestions' class='suggestions'>
+                    <button v-for='s in suggestions' :key='s' class='suggestion' @click='subject = s; showSuggestions = false'>
                         {{ s }}
                     </button>
                 </div>
             </div>
 
             <!-- payload -->
-            <div class="pub-field">
-                <label class="pub-label">
+            <div class='pub-field'>
+                <label class='pub-label'>
                     Payload
-                    <span class="pub-size">{{ payloadBytes }} bytes</span>
+                    <span class='pub-size'>{{ payloadBytes }} bytes</span>
                 </label>
-                <textarea v-model="payload" class="pub-textarea mono" rows="6" placeholder='{"key": "value"}'></textarea>
+                <textarea v-model='payload' class='pub-textarea mono' rows='6' placeholder='{"key": "value"}'></textarea>
             </div>
 
             <!-- headers -->
-            <div class="pub-field">
-                <label class="pub-label">Headers</label>
-                <div class="headers-list">
-                    <div v-for="h in headerPairs" :key="h.id" class="header-pair">
-                        <input v-model="h.key" class="pub-input mono hdr-key" placeholder="Key" />
-                        <input v-model="h.value" class="pub-input mono hdr-val" placeholder="Value" />
-                        <button class="pub-btn icon-btn" @click="removeHeader(h.id)"><Trash2 :size="11" /></button>
+            <div class='pub-field'>
+                <label class='pub-label'>Headers</label>
+                <div class='headers-list'>
+                    <div v-for='h in headerPairs' :key='h.id' class='header-pair'>
+                        <input v-model='h.key' class='pub-input mono hdr-key' placeholder='Key' />
+                        <input v-model='h.value' class='pub-input mono hdr-val' placeholder='Value' />
+                        <button class='pub-btn icon-btn' @click='removeHeader(h.id)'><Trash2 :size='11' /></button>
                     </div>
-                    <button class="pub-btn hdr-add" @click="addHeader"><Plus :size="11" /> Add header</button>
+                    <button class='pub-btn hdr-add' @click='addHeader'><Plus :size='11' /> Add header</button>
                 </div>
             </div>
 
             <!-- send -->
-            <button class="pub-btn send-btn" :disabled="!subject.trim() || sending" @click="send">
-                <Send :size="12" />
+            <button class='pub-btn send-btn' :disabled='!subject.trim() || sending' @click='send'>
+                <Send :size='12' />
                 {{ sending ? 'Sending…' : mode === 'request' ? 'Send Request' : 'Publish' }}
             </button>
 
             <!-- result -->
-            <div v-if="result" class="pub-result" :class="{ err: !result.ok }">
-                <template v-if="result.ok">
-                    <div class="result-ok-line">
-                        <Check :size="12" />
+            <div v-if='result' class='pub-result' :class='{ err: !result.ok }'>
+                <template v-if='result.ok'>
+                    <div class='result-ok-line'>
+                        <Check :size='12' />
                         {{ result.data }}
                     </div>
-                    <div v-if="result.inbox" class="result-inbox mono">Inbox: {{ result.inbox }}</div>
-                    <div v-if="result.reply" class="result-reply">
-                        <div class="pub-label" style="margin-top:8px">Reply</div>
-                        <pre class="reply-body mono">{{ result.reply }}</pre>
+                    <div v-if='result.inbox' class='result-inbox mono'>Inbox: {{ result.inbox }}</div>
+                    <div v-if='result.reply' class='result-reply'>
+                        <div class='pub-label' style='margin-top:8px'>Reply</div>
+                        <pre class='reply-body mono'>{{ result.reply }}</pre>
                     </div>
                 </template>
                 <template v-else>
-                    <div class="result-err-line"><AlertCircle :size="12" /> {{ result.error }}</div>
+                    <div class='result-err-line'><AlertCircle :size='12' /> {{ result.error }}</div>
                 </template>
             </div>
         </div>

@@ -1,8 +1,8 @@
 <template>
-    <div class="nats-bb" :class="status" :title="`NATS: ${status}${rtt ? ` · ${rtt}ms` : ''}`">
-        <Radio :size="14" />
-        <span class="nats-bb-label">NATS</span>
-        <div class="nats-bb-dot" />
+    <div class='nats-bb' :class='status' :title='`NATS: ${status}${rtt ? ` · ${rtt}ms` : ''}`'>
+        <Radio :size='14' />
+        <span class='nats-bb-label'>NATS</span>
+        <div class='nats-bb-dot' />
     </div>
 </template>
 

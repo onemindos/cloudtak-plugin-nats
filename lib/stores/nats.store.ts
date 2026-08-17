@@ -3,7 +3,7 @@
 // nats.ws is framework-agnostic; only the reactive wrapper changes.
 
 import { ref, readonly } from 'vue';
-import type { NatsConnection, Subscription } from 'nats.ws';
+import type { NatsConnection } from 'nats.ws';
 import { connect, StringCodec } from 'nats.ws';
 
 export type NatsStatus = 'disconnected' | 'connecting' | 'connected' | 'error';
@@ -75,7 +75,7 @@ async function connectToProfile(profileId: string): Promise<void> {
 
         // Monitor for close
         void (async () => {
-            for await (const _s of conn.status()) {
+            for await (const _s of conn.status()) { // eslint-disable-line @typescript-eslint/no-unused-vars
                 // on any status change, re-check
             }
             status.value = 'disconnected';

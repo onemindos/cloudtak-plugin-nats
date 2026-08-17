@@ -37,7 +37,7 @@ export function useNatsTap(maxFrames = 500) {
                 if (paused.value) continue;
 
                 // Decode data
-                let data = '';
+                let data: string;
                 try { data = sc.decode(msg.data); } catch { data = '<binary>'; }
 
                 // Extract headers

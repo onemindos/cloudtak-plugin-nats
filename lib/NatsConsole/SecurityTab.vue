@@ -1,30 +1,30 @@
 <template>
-    <div class="security-root">
-        <div class="sec-toolbar">
-            <Shield :size="14" class="sec-icon" />
-            <span class="sec-title">Security</span>
-            <span class="sec-subtitle">$SYS audit log</span>
-            <div class="sec-spacer" />
-            <span class="sec-count">{{ events.length }} events</span>
-            <button class="sec-btn" @click="clear">
-                <Trash2 :size="13" />
+    <div class='security-root'>
+        <div class='sec-toolbar'>
+            <Shield :size='14' class='sec-icon' />
+            <span class='sec-title'>Security</span>
+            <span class='sec-subtitle'>$SYS audit log</span>
+            <div class='sec-spacer' />
+            <span class='sec-count'>{{ events.length }} events</span>
+            <button class='sec-btn' @click='clear'>
+                <Trash2 :size='13' />
             </button>
         </div>
 
-        <div v-if="!nc" class="sec-empty">
-            <Shield :size="28" style="opacity:0.3" />
+        <div v-if='!nc' class='sec-empty'>
+            <Shield :size='28' style='opacity:0.3' />
             <p>Not connected to NATS.</p>
         </div>
 
-        <div v-else class="sec-events">
-            <div v-for="ev in events" :key="ev.id" class="sec-event" :class="ev.type">
-                <span class="sec-ev-badge" :class="ev.type">{{ ev.type.toUpperCase() }}</span>
-                <span class="sec-ev-ts">{{ formatTs(ev.ts) }}</span>
-                <span class="sec-ev-client">{{ ev.clientId ?? '—' }}</span>
-                <span class="sec-ev-subject" :title="ev.subject">{{ ev.subject }}</span>
-                <span class="sec-ev-detail" :title="ev.detail">{{ ev.detail }}</span>
+        <div v-else class='sec-events'>
+            <div v-for='ev in events' :key='ev.id' class='sec-event' :class='ev.type'>
+                <span class='sec-ev-badge' :class='ev.type'>{{ ev.type.toUpperCase() }}</span>
+                <span class='sec-ev-ts'>{{ formatTs(ev.ts) }}</span>
+                <span class='sec-ev-client'>{{ ev.clientId ?? '—' }}</span>
+                <span class='sec-ev-subject' :title='ev.subject'>{{ ev.subject }}</span>
+                <span class='sec-ev-detail' :title='ev.detail'>{{ ev.detail }}</span>
             </div>
-            <div v-if="!events.length" class="sec-empty-inline">
+            <div v-if='!events.length' class='sec-empty-inline'>
                 Listening on $SYS… no events yet.
             </div>
         </div>
