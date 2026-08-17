@@ -222,16 +222,20 @@ async function send() {
             const inbox = createInbox();
             const sub   = nc.value.subscribe(inbox, { max: 1, timeout: 5000 });
             nc.value.publish(subject.value.trim(), data, { reply: inbox, headers: msgHeaders });
-            const msg = await sub.next();
+            let raw = '';
+            for await (const m of sub) {
+                raw = sc.decode(m.data);
+                break;
+            }
             sub.unsubscribe();
             let reply: string;
-            try { reply = JSON.stringify(JSON.parse(sc.decode(msg.data)), null, 2); }
+            try { reply = JSON.stringify(JSON.parse(raw), null, 2); }
             catch { // ignore parse error
-                reply = sc.decode(msg.data);
+                reply = raw;
             }
             result.value = {
                 ok: true,
-                data: `${sc.decode(msg.data).length} byte reply`,
+                data: `${raw.length} byte reply`,
                 inbox,
                 reply,
             };
