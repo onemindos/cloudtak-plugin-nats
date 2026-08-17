@@ -74,7 +74,7 @@
                         <th @click='sortBy("msgsOut")'>
                             Out
                         </th>
-                        <th @click='sortBy("data")'>
+                        <th @click='sortBy("bytesOut")'>
                             Data
                         </th>
                         <th>Lang</th>
@@ -175,7 +175,7 @@ interface ConnectionInfo {
     lang: string; version: string; rtt?: string; uptime?: string; subs?: string[];
 }
 
-const { nc, sc } = useNatsStore();
+const { nc } = useNatsStore();
 const connections = ref<ConnectionInfo[]>([]);
 const loading     = ref(false);
 const error       = ref<string | null>(null);

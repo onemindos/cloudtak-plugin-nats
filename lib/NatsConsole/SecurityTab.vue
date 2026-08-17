@@ -115,7 +115,7 @@ function startListening() {
 function clear() { events.value = []; }
 
 function stopListening() {
-    subs.value.forEach(s => s.unsubscribe());
+    subs.value.forEach((s: Subscription) => s.unsubscribe());
     subs.value = [];
 }
 
