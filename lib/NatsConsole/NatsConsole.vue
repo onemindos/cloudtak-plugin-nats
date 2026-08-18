@@ -23,6 +23,7 @@
         <!-- ── Section content ──────────────────────────────────────────────── -->
         <div class='nc-body'>
             <OverviewSection     v-if='activeSection === "overview"' />
+            <AgentsSection       v-if='activeSection === "agents"' />
             <IntegrationsSection v-if='activeSection === "integrations"' />
             <ReplaySection       v-if='activeSection === "replay"' />
 
@@ -59,7 +60,7 @@
 import { ref, computed } from 'vue';
 import {
     Radio, Shield, Network, Link2, Layers, Database, Settings, Send,
-    LayoutDashboard, Plug, HistoryIcon,
+    LayoutDashboard, Bot, Plug, HistoryIcon,
 } from 'lucide-vue-next';
 import { useNatsStore } from '../stores/nats.store';
 import WireTab           from './WireTab.vue';
@@ -71,6 +72,7 @@ import KVTab             from './KVTab.vue';
 import PublishTab        from './PublishTab.vue';
 import NatsSettings      from './NatsSettings.vue';
 import OverviewSection      from './OverviewSection.vue';
+import AgentsSection        from './AgentsSection.vue';
 import IntegrationsSection  from './IntegrationsSection.vue';
 import ReplaySection        from './ReplaySection.vue';
 
@@ -78,6 +80,7 @@ const { status, rtt } = useNatsStore();
 
 const SECTIONS = [
     { id: 'overview',      label: 'Overview',      icon: LayoutDashboard },
+    { id: 'agents',        label: 'Agents',         icon: Bot             },
     { id: 'bus',           label: 'Bus',            icon: Radio           },
     { id: 'integrations',  label: 'Integrations',   icon: Plug            },
     { id: 'replay',        label: 'Replay',         icon: HistoryIcon     },
