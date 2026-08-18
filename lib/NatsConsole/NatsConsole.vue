@@ -1,45 +1,56 @@
 <template>
     <div class='nats-console'>
-        <!-- ── Tab bar ──────────────────────────────────────────────────────── -->
-        <div class='nc-tabs'>
+        <!-- ── Section bar ────────────────────────────────────────────────────── -->
+        <div class='nc-sections'>
             <button
-                v-for='tab in TABS'
-                :key='tab.id'
-                class='nc-tab'
-                :class='{ active: activeTab === tab.id }'
-                @click='activeTab = tab.id'
+                v-for='s in SECTIONS'
+                :key='s.id'
+                class='nc-section'
+                :class='{ active: activeSection === s.id }'
+                @click='activeSection = s.id'
             >
-                <component
-                    :is='tab.icon'
-                    :size='12'
-                />
-                {{ tab.label }}
+                <component :is='s.icon' :size='11' />
+                {{ s.label }}
             </button>
-            <div class='nc-tabs-spacer' />
-            <!-- NATS connection status pill -->
-            <div
-                class='nc-status'
-                :class='status'
-            >
+            <div class='nc-sections-spacer' />
+            <div class='nc-status' :class='status'>
                 <div class='nc-status-dot' />
                 <span>{{ statusLabel }}</span>
-                <span
-                    v-if='rtt'
-                    class='nc-rtt'
-                >{{ rtt }}ms</span>
+                <span v-if='rtt' class='nc-rtt'>{{ rtt }}ms</span>
             </div>
         </div>
 
-        <!-- ── Tab content ──────────────────────────────────────────────────── -->
+        <!-- ── Section content ──────────────────────────────────────────────── -->
         <div class='nc-body'>
-            <WireTab v-if='activeTab === "wire"' />
-            <SecurityTab v-if='activeTab === "security"' />
-            <TopologyTab v-if='activeTab === "topology"' />
-            <ConnectionsTab v-if='activeTab === "connections"' />
-            <StreamsTab v-if='activeTab === "streams"' />
-            <KVTab v-if='activeTab === "kv"' />
-            <PublishTab v-if='activeTab === "publish"' />
-            <NatsSettings v-if='activeTab === "settings"' />
+            <OverviewSection     v-if='activeSection === "overview"' />
+            <IntegrationsSection v-if='activeSection === "integrations"' />
+            <ReplaySection       v-if='activeSection === "replay"' />
+
+            <!-- Bus: inner tab bar + content -->
+            <template v-if='activeSection === "bus"'>
+                <div class='nc-tabs'>
+                    <button
+                        v-for='tab in TABS'
+                        :key='tab.id'
+                        class='nc-tab'
+                        :class='{ active: activeTab === tab.id }'
+                        @click='activeTab = tab.id'
+                    >
+                        <component :is='tab.icon' :size='12' />
+                        {{ tab.label }}
+                    </button>
+                </div>
+                <div class='nc-tab-body'>
+                    <WireTab        v-if='activeTab === "wire"' />
+                    <SecurityTab    v-if='activeTab === "security"' />
+                    <TopologyTab    v-if='activeTab === "topology"' />
+                    <ConnectionsTab v-if='activeTab === "connections"' />
+                    <StreamsTab     v-if='activeTab === "streams"' />
+                    <KVTab          v-if='activeTab === "kv"' />
+                    <PublishTab     v-if='activeTab === "publish"' />
+                    <NatsSettings   v-if='activeTab === "settings"' />
+                </div>
+            </template>
         </div>
     </div>
 </template>
@@ -47,19 +58,33 @@
 <script setup lang='ts'>
 import { ref, computed } from 'vue';
 import {
-    Radio, Shield, Network, Link2, Layers, Database, Settings, Send
+    Radio, Shield, Network, Link2, Layers, Database, Settings, Send,
+    LayoutDashboard, Plug, HistoryIcon,
 } from 'lucide-vue-next';
 import { useNatsStore } from '../stores/nats.store';
-import WireTab        from './WireTab.vue';
-import SecurityTab    from './SecurityTab.vue';
-import TopologyTab    from './TopologyTab.vue';
-import ConnectionsTab from './ConnectionsTab.vue';
-import StreamsTab     from './StreamsTab.vue';
-import KVTab          from './KVTab.vue';
-import PublishTab     from './PublishTab.vue';
-import NatsSettings   from './NatsSettings.vue';
+import WireTab           from './WireTab.vue';
+import SecurityTab       from './SecurityTab.vue';
+import TopologyTab       from './TopologyTab.vue';
+import ConnectionsTab    from './ConnectionsTab.vue';
+import StreamsTab        from './StreamsTab.vue';
+import KVTab             from './KVTab.vue';
+import PublishTab        from './PublishTab.vue';
+import NatsSettings      from './NatsSettings.vue';
+import OverviewSection      from './OverviewSection.vue';
+import IntegrationsSection  from './IntegrationsSection.vue';
+import ReplaySection        from './ReplaySection.vue';
 
 const { status, rtt } = useNatsStore();
+
+const SECTIONS = [
+    { id: 'overview',      label: 'Overview',      icon: LayoutDashboard },
+    { id: 'bus',           label: 'Bus',            icon: Radio           },
+    { id: 'integrations',  label: 'Integrations',   icon: Plug            },
+    { id: 'replay',        label: 'Replay',         icon: HistoryIcon     },
+] as const;
+
+type SectionId = typeof SECTIONS[number]['id'];
+const activeSection = ref<SectionId>('overview');
 
 const TABS = [
     { id: 'wire',        label: 'Wire',        icon: Radio    },
@@ -77,10 +102,8 @@ const activeTab = ref<TabId>('wire');
 
 const statusLabel = computed(() => {
     const map: Record<string, string> = {
-        connected:    'connected',
-        connecting:   'connecting…',
-        disconnected: 'disconnected',
-        error:        'error',
+        connected: 'connected', connecting: 'connecting…',
+        disconnected: 'disconnected', error: 'error',
     };
     return map[status.value] ?? status.value;
 });
@@ -97,31 +120,33 @@ const statusLabel = computed(() => {
     font-size: 12px;
 }
 
-/* Tab bar */
-.nc-tabs {
+/* Section bar */
+.nc-sections {
     display: flex;
     align-items: center;
     flex-shrink: 0;
-    border-bottom: 1px solid rgba(255,255,255,0.07);
+    border-bottom: 2px solid rgba(255,255,255,0.07);
     padding: 0 8px;
     gap: 1px;
-    min-height: 36px;
+    min-height: 38px;
+    background: rgba(255,255,255,0.02);
 }
-.nc-tab {
+.nc-section {
     display: flex; align-items: center; gap: 5px;
-    padding: 6px 10px;
+    padding: 6px 12px;
     background: none; border: none; border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
     color: rgba(255,255,255,0.4);
-    font-size: 11px; font-weight: 500;
+    font-size: 11px; font-weight: 600;
     cursor: pointer; white-space: nowrap;
     transition: color .12s, border-color .12s;
 }
-.nc-tab:hover { color: rgba(255,255,255,0.7); }
-.nc-tab.active { color: #4a9eff; border-bottom-color: #4a9eff; }
+.nc-section:hover { color: rgba(255,255,255,0.75); }
+.nc-section.active { color: #4a9eff; border-bottom-color: #4a9eff; }
 
-.nc-tabs-spacer { flex: 1; }
+.nc-sections-spacer { flex: 1; }
 
-/* Status pill */
+/* Connection status pill */
 .nc-status {
     display: flex; align-items: center; gap: 5px;
     padding: 3px 9px;
@@ -136,21 +161,40 @@ const statusLabel = computed(() => {
     border-radius: 50%;
     background: rgba(255,255,255,0.2);
 }
-.nc-status.connected .nc-status-dot    { background: #22c55e; box-shadow: 0 0 6px #22c55e88; }
-.nc-status.connected                   { color: #22c55e; border-color: rgba(34,197,94,0.25); }
-.nc-status.connecting .nc-status-dot   { background: #f59e0b; animation: blink 1s infinite; }
-.nc-status.connecting                  { color: #f59e0b; }
-.nc-status.error .nc-status-dot        { background: #f85149; }
-.nc-status.error                       { color: #f85149; }
-
+.nc-status.connected .nc-status-dot  { background: #22c55e; box-shadow: 0 0 6px #22c55e88; }
+.nc-status.connected                 { color: #22c55e; border-color: rgba(34,197,94,0.25); }
+.nc-status.connecting .nc-status-dot { background: #f59e0b; animation: blink 1s infinite; }
+.nc-status.connecting                { color: #f59e0b; }
+.nc-status.error .nc-status-dot      { background: #f85149; }
+.nc-status.error                     { color: #f85149; }
 .nc-rtt { color: rgba(255,255,255,0.3); font-size: 10px; }
 
-@keyframes blink { 0%,100% { opacity:1; } 50% { opacity:0.3; } }
+@keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
 
 /* Body */
 .nc-body { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
-.nc-stub {
-    flex: 1; display: flex; align-items: center; justify-content: center;
-    color: rgba(255,255,255,0.2); font-size: 13px; font-style: italic;
+
+/* Bus inner tab bar */
+.nc-tabs {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    padding: 0 8px;
+    gap: 1px;
+    min-height: 34px;
 }
+.nc-tab {
+    display: flex; align-items: center; gap: 5px;
+    padding: 5px 9px;
+    background: none; border: none; border-bottom: 2px solid transparent;
+    color: rgba(255,255,255,0.4);
+    font-size: 11px; font-weight: 500;
+    cursor: pointer; white-space: nowrap;
+    transition: color .12s, border-color .12s;
+}
+.nc-tab:hover { color: rgba(255,255,255,0.7); }
+.nc-tab.active { color: #4a9eff; border-bottom-color: #4a9eff; }
+
+.nc-tab-body { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
 </style>
