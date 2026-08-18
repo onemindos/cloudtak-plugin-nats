@@ -24,6 +24,9 @@
         <div class='nc-body'>
             <OverviewSection     v-if='activeSection === "overview"' />
             <AgentsSection       v-if='activeSection === "agents"' />
+            <FleetSection        v-if='activeSection === "fleet"' />
+            <MissionsSection     v-if='activeSection === "missions"' />
+            <TasksSection        v-if='activeSection === "tasks"' />
             <IntegrationsSection v-if='activeSection === "integrations"' />
             <ReplaySection       v-if='activeSection === "replay"' />
 
@@ -60,7 +63,7 @@
 import { ref, computed } from 'vue';
 import {
     Radio, Shield, Network, Link2, Layers, Database, Settings, Send,
-    LayoutDashboard, Bot, Plug, HistoryIcon,
+    LayoutDashboard, Bot, Satellite, Target, CheckSquare, Plug, HistoryIcon,
 } from 'lucide-vue-next';
 import { useNatsStore } from '../stores/nats.store';
 import WireTab           from './WireTab.vue';
@@ -73,17 +76,23 @@ import PublishTab        from './PublishTab.vue';
 import NatsSettings      from './NatsSettings.vue';
 import OverviewSection      from './OverviewSection.vue';
 import AgentsSection        from './AgentsSection.vue';
+import FleetSection         from './FleetSection.vue';
+import MissionsSection      from './MissionsSection.vue';
+import TasksSection         from './TasksSection.vue';
 import IntegrationsSection  from './IntegrationsSection.vue';
 import ReplaySection        from './ReplaySection.vue';
 
 const { status, rtt } = useNatsStore();
 
 const SECTIONS = [
-    { id: 'overview',      label: 'Overview',      icon: LayoutDashboard },
-    { id: 'agents',        label: 'Agents',         icon: Bot             },
-    { id: 'bus',           label: 'Bus',            icon: Radio           },
-    { id: 'integrations',  label: 'Integrations',   icon: Plug            },
-    { id: 'replay',        label: 'Replay',         icon: HistoryIcon     },
+    { id: 'overview',     label: 'Overview',      icon: LayoutDashboard },
+    { id: 'agents',       label: 'Agents',         icon: Bot             },
+    { id: 'fleet',        label: 'Fleet',          icon: Satellite       },
+    { id: 'missions',     label: 'Missions',       icon: Target          },
+    { id: 'tasks',        label: 'Tasks',          icon: CheckSquare     },
+    { id: 'bus',          label: 'Bus',            icon: Radio           },
+    { id: 'integrations', label: 'Integrations',   icon: Plug            },
+    { id: 'replay',       label: 'Replay',         icon: HistoryIcon     },
 ] as const;
 
 type SectionId = typeof SECTIONS[number]['id'];
@@ -129,14 +138,16 @@ const statusLabel = computed(() => {
     align-items: center;
     flex-shrink: 0;
     border-bottom: 2px solid rgba(255,255,255,0.07);
-    padding: 0 8px;
-    gap: 1px;
+    padding: 0 6px;
+    gap: 0;
     min-height: 38px;
     background: rgba(255,255,255,0.02);
+    overflow-x: auto;
 }
+.nc-sections::-webkit-scrollbar { height: 0; }
 .nc-section {
-    display: flex; align-items: center; gap: 5px;
-    padding: 6px 12px;
+    display: flex; align-items: center; gap: 4px;
+    padding: 6px 10px;
     background: none; border: none; border-bottom: 2px solid transparent;
     margin-bottom: -2px;
     color: rgba(255,255,255,0.4);
@@ -147,7 +158,7 @@ const statusLabel = computed(() => {
 .nc-section:hover { color: rgba(255,255,255,0.75); }
 .nc-section.active { color: #4a9eff; border-bottom-color: #4a9eff; }
 
-.nc-sections-spacer { flex: 1; }
+.nc-sections-spacer { flex: 1; min-width: 8px; }
 
 /* Connection status pill */
 .nc-status {
@@ -158,6 +169,8 @@ const statusLabel = computed(() => {
     background: rgba(255,255,255,0.05);
     border: 1px solid rgba(255,255,255,0.08);
     color: rgba(255,255,255,0.4);
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 .nc-status-dot {
     width: 6px; height: 6px;
