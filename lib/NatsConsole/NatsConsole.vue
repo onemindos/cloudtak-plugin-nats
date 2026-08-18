@@ -29,6 +29,7 @@
             <TasksSection        v-if='activeSection === "tasks"' />
             <IntegrationsSection v-if='activeSection === "integrations"' />
             <ReplaySection       v-if='activeSection === "replay"' />
+            <IntelSection        v-if='activeSection === "intel"' />
 
             <!-- Bus: inner tab bar + content -->
             <template v-if='activeSection === "bus"'>
@@ -63,7 +64,7 @@
 import { ref, computed } from 'vue';
 import {
     Radio, Shield, Network, Link2, Layers, Database, Settings, Send,
-    LayoutDashboard, Bot, Satellite, Target, CheckSquare, Plug, HistoryIcon,
+    LayoutDashboard, Bot, Satellite, Target, CheckSquare, Plug, HistoryIcon, Newspaper,
 } from 'lucide-vue-next';
 import { useNatsStore } from '../stores/nats.store';
 import WireTab           from './WireTab.vue';
@@ -81,6 +82,7 @@ import MissionsSection      from './MissionsSection.vue';
 import TasksSection         from './TasksSection.vue';
 import IntegrationsSection  from './IntegrationsSection.vue';
 import ReplaySection        from './ReplaySection.vue';
+import IntelSection         from './IntelSection.vue';
 
 const { status, rtt } = useNatsStore();
 
@@ -90,12 +92,13 @@ const SECTIONS = [
     { id: 'fleet',        label: 'Fleet',          icon: Satellite       },
     { id: 'missions',     label: 'Missions',       icon: Target          },
     { id: 'tasks',        label: 'Tasks',          icon: CheckSquare     },
+    { id: 'intel',        label: 'Intel',          icon: Newspaper       },
     { id: 'bus',          label: 'Bus',            icon: Radio           },
     { id: 'integrations', label: 'Integrations',   icon: Plug            },
     { id: 'replay',       label: 'Replay',         icon: HistoryIcon     },
 ] as const;
 
-type SectionId = typeof SECTIONS[number]['id'];
+type SectionId = (typeof SECTIONS)[number]['id'];
 const activeSection = ref<SectionId>('overview');
 
 const TABS = [
