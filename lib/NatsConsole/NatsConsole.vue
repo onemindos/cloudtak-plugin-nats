@@ -30,6 +30,10 @@
             <IntegrationsSection v-if='activeSection === "integrations"' />
             <ReplaySection       v-if='activeSection === "replay"' />
             <IntelSection        v-if='activeSection === "intel"' />
+            <TimeMachineSection  v-if='activeSection === "timemachine"' />
+            <ServicesSection     v-if='activeSection === "services"' />
+            <VoiceSection        v-if='activeSection === "voice"' />
+            <BridgesSection      v-if='activeSection === "bridges"' />
 
             <!-- Bus: inner tab bar + content -->
             <template v-if='activeSection === "bus"'>
@@ -65,6 +69,7 @@ import { ref, computed } from 'vue';
 import {
     Radio, Shield, Network, Link2, Layers, Database, Settings, Send,
     LayoutDashboard, Bot, Satellite, Target, CheckSquare, Plug, HistoryIcon, Newspaper,
+    Clock, LayoutList, Mic, GitMerge,
 } from 'lucide-vue-next';
 import { useNatsStore } from '../stores/nats.store';
 import WireTab           from './WireTab.vue';
@@ -83,6 +88,10 @@ import TasksSection         from './TasksSection.vue';
 import IntegrationsSection  from './IntegrationsSection.vue';
 import ReplaySection        from './ReplaySection.vue';
 import IntelSection         from './IntelSection.vue';
+import TimeMachineSection   from './TimeMachineSection.vue';
+import ServicesSection      from './ServicesSection.vue';
+import VoiceSection         from './VoiceSection.vue';
+import BridgesSection       from './BridgesSection.vue';
 
 const { status, rtt } = useNatsStore();
 
@@ -96,6 +105,10 @@ const SECTIONS = [
     { id: 'bus',          label: 'Bus',            icon: Radio           },
     { id: 'integrations', label: 'Integrations',   icon: Plug            },
     { id: 'replay',       label: 'Replay',         icon: HistoryIcon     },
+    { id: 'timemachine',  label: 'Time Machine',   icon: Clock           },
+    { id: 'services',     label: 'Services',       icon: LayoutList      },
+    { id: 'voice',        label: 'Voice',          icon: Mic             },
+    { id: 'bridges',      label: 'Bridges',        icon: GitMerge        },
 ] as const;
 
 type SectionId = (typeof SECTIONS)[number]['id'];
