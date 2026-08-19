@@ -1,6 +1,5 @@
 <template>
     <div class='it'>
-        <!-- Tab bar -->
         <div class='it-tabs'>
             <button
                 v-for='tab in TABS'
@@ -94,12 +93,7 @@
                         <span>NO ACTIVE THREATS</span>
                         <span class='it-muted it-mono'>evt.threat.&gt; + det.&gt;</span>
                     </div>
-                    <div
-                        v-for='alert in filteredThreats'
-                        :key='alert.id'
-                        class='it-alert'
-                        :class='[alert.severity.toLowerCase(), { acked: alert.acknowledged }]'
-                    >
+                    <div v-for='alert in filteredThreats' :key='alert.id' class='it-alert' :class='[alert.severity.toLowerCase(), { acked: alert.acknowledged }]'>
                         <div class='it-alert-dot' :class='alert.severity.toLowerCase()' />
                         <div class='it-alert-body'>
                             <div class='it-alert-top'>
@@ -179,7 +173,6 @@
                         <Trash2 :size='12' />
                     </button>
                 </div>
-
                 <div ref='analystEl' class='it-analyst-msgs'>
                     <div v-if='analystMsgs.length === 0 && !analystLoading' class='it-analyst-empty'>
                         <div class='it-brain-icon'><Brain :size='28' style='color:#d4af37' /></div>
@@ -191,12 +184,7 @@
                         </div>
                         <div class='it-suggestions'>
                             <div class='it-dim it-mono' style='font-size:9px;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px;text-align:center'>SUGGESTED QUERIES</div>
-                            <button
-                                v-for='q in SUGGESTED_QUERIES'
-                                :key='q'
-                                class='it-suggestion'
-                                @click='analystInput = q'
-                            >
+                            <button v-for='q in SUGGESTED_QUERIES' :key='q' class='it-suggestion' @click='analystInput = q'>
                                 <span style='color:#d4af37;margin-right:5px'>›</span>{{ q }}
                             </button>
                         </div>
@@ -207,13 +195,7 @@
                             </span>
                         </div>
                     </div>
-
-                    <div
-                        v-for='msg in analystMsgs'
-                        :key='msg.id'
-                        class='it-amsg'
-                        :class='msg.role'
-                    >
+                    <div v-for='msg in analystMsgs' :key='msg.id' class='it-amsg' :class='msg.role'>
                         <div class='it-amsg-bubble' :class='[msg.role, { error: msg.isError }]'>
                             <div class='it-amsg-hd'>
                                 <User v-if='msg.role === "user"' :size='11' style='color:#4a9eff' />
@@ -224,15 +206,10 @@
                                 </span>
                                 <span class='it-mono it-dim it-ml'>{{ fmtTime(msg.timestamp) }}</span>
                             </div>
-                            <div
-                                v-if='msg.role === "analyst" && !msg.isError'
-                                class='it-amsg-content it-mono'
-                                v-html='renderMd(msg.content)'
-                            />
+                            <div v-if='msg.role === "analyst" && !msg.isError' class='it-amsg-content it-mono' v-html='renderMd(msg.content)' />
                             <div v-else class='it-amsg-content it-mono' style='white-space:pre-wrap'>{{ msg.content }}</div>
                         </div>
                     </div>
-
                     <div v-if='analystLoading' class='it-amsg analyst'>
                         <div class='it-amsg-bubble analyst'>
                             <div class='it-amsg-hd'>
@@ -242,7 +219,6 @@
                         </div>
                     </div>
                 </div>
-
                 <div class='it-analyst-input'>
                     <div class='it-briefing-row'>
                         <button class='it-briefing-btn' :disabled='analystLoading || !nc' @click='generateBriefing'>
@@ -251,23 +227,224 @@
                         <span class='it-mono it-dim' style='font-size:9px'>SHIFT+ENTER for newline</span>
                     </div>
                     <div class='it-analyst-row'>
-                        <textarea
-                            ref='analystInputEl'
-                            v-model='analystInput'
-                            class='it-analyst-ta'
-                            rows='2'
+                        <textarea ref='analystInputEl' v-model='analystInput' class='it-analyst-ta' rows='2'
                             :placeholder='nc ? "Query the intelligence analyst…" : "NATS disconnected — connect first"'
-                            :disabled='analystLoading || !nc'
-                            @keydown='onAnalystKey'
-                        />
-                        <button
-                            class='it-analyst-send'
-                            :disabled='!analystInput.trim() || analystLoading || !nc'
-                            @click='sendAnalystQuery'
-                        >
+                            :disabled='analystLoading || !nc' @keydown='onAnalystKey' />
+                        <button class='it-analyst-send' :disabled='!analystInput.trim() || analystLoading || !nc' @click='sendAnalystQuery'>
                             <Send :size='13' />
                         </button>
                     </div>
+                </div>
+            </template>
+
+            <!-- ── ENTITY GRAPH ────────────────────────────────────────────────── -->
+            <template v-if='activeTab === "entity-graph"'>
+                <div class='it-panel-hd'>
+                    <Network :size='13' class='it-acc' />
+                    <span class='it-panel-title'>ENTITY GRAPH</span>
+                    <span class='it-badge'>{{ entityNodes.size }} ENTITIES</span>
+                    <div class='it-live-dot' />
+                </div>
+                <div class='it-filters'>
+                    <div class='it-search-wrap'>
+                        <Search :size='11' class='it-search-icon' />
+                        <input v-model='entitySearch' class='it-search' placeholder='Search entities…' />
+                    </div>
+                    <div class='it-filter-row'>
+                        <button v-for='t in ENTITY_TYPES' :key='t' class='it-chip' :class='{ active: entityTypeFilter === t }' @click='entityTypeFilter = t'>{{ t }}</button>
+                    </div>
+                </div>
+                <div class='it-list'>
+                    <div v-if='entityNodes.size === 0' class='it-empty'>
+                        <Network :size='22' class='it-empty-icon' />
+                        <span>NO ENTITIES OBSERVED</span>
+                        <span class='it-muted it-mono'>ent.&gt;</span>
+                    </div>
+                    <template v-for='(group, gType) in filteredEntityGroups' :key='gType'>
+                        <div class='it-ent-group-hd'>
+                            <component :is='entityTypeIcon(gType)' :size='11' :style='{ color: entityTypeColor(gType) }' />
+                            <span>{{ gType.toUpperCase() }}</span>
+                            <span class='it-badge' style='margin-left:4px'>{{ group.length }}</span>
+                        </div>
+                        <div v-for='ent in group' :key='ent.id' class='it-ent-row' :class='{ selected: selectedEntity === ent.id }' @click='selectedEntity = selectedEntity === ent.id ? null : ent.id'>
+                            <div class='it-ent-dot' :style='{ background: entityTypeColor(ent.type) }' />
+                            <div class='it-ent-body'>
+                                <div class='it-ent-id it-mono'>{{ ent.label || ent.id }}</div>
+                                <div v-if='ent.parent' class='it-ent-parent it-mono it-dim'>parent: {{ ent.parent }}</div>
+                            </div>
+                            <span class='it-time it-mono'>{{ timeAgo(ent.lastSeen) }}</span>
+                        </div>
+                        <div v-if='selectedEntity && entityNodes.get(selectedEntity)' class='it-ent-detail'>
+                            <pre class='it-raw-json'>{{ JSON.stringify(entityNodes.get(selectedEntity)!.raw, null, 2) }}</pre>
+                        </div>
+                    </template>
+                </div>
+                <div class='it-footer'>
+                    <span class='it-mono'>{{ entityNodes.size }} total entities</span>
+                    <span class='it-mono'>LIVE • ent.&gt;</span>
+                </div>
+            </template>
+
+            <!-- ── SOURCES ─────────────────────────────────────────────────────── -->
+            <template v-if='activeTab === "sources"'>
+                <div class='it-panel-hd'>
+                    <Database :size='13' class='it-acc' />
+                    <span class='it-panel-title'>FEED SOURCES</span>
+                    <span class='it-badge'>{{ FEED_SOURCE_DEFS.length }} FEEDS</span>
+                    <span class='it-badge green'>{{ enabledSourceCount }} ENABLED</span>
+                </div>
+                <div class='it-list'>
+                    <div v-for='feed in FEED_SOURCE_DEFS' :key='feed.id' class='it-src-card' :class='{ expanded: expandedSource === feed.id }'>
+                        <div class='it-src-hd' @click='expandedSource = expandedSource === feed.id ? null : feed.id'>
+                            <component :is='feed.icon' :size='14' :class='sourceEnabled(feed.id) ? "it-acc" : "it-dim"' />
+                            <div class='it-src-meta'>
+                                <div class='it-src-name'>{{ feed.name }}</div>
+                                <div class='it-src-desc it-mono it-dim'>{{ feed.description }}</div>
+                            </div>
+                            <div class='it-src-status'>
+                                <div class='it-feed-dot' :class='sourceStatus(feed.id)' />
+                                <span class='it-chip-sm' :class='sourceStatus(feed.id)'>{{ sourceStatus(feed.id).toUpperCase() }}</span>
+                            </div>
+                            <button class='it-toggle' :class='{ on: sourceEnabled(feed.id) }' @click.stop='toggleSource(feed.id)'>
+                                {{ sourceEnabled(feed.id) ? 'ON' : 'OFF' }}
+                            </button>
+                            <ChevronDown :size='12' class='it-dim' :style='{ transform: expandedSource === feed.id ? "rotate(180deg)" : "" }' />
+                        </div>
+                        <div v-if='expandedSource === feed.id' class='it-src-settings'>
+                            <div v-for='setting in feed.settings' :key='setting.key' class='it-src-field'>
+                                <label class='it-src-label it-mono'>{{ setting.label }}</label>
+                                <input
+                                    :type='setting.type === "password" ? "password" : "text"'
+                                    :placeholder='setting.placeholder'
+                                    :value='getSourceSetting(feed.id, setting.key)'
+                                    class='it-search'
+                                    @input='setSourceSetting(feed.id, setting.key, ($event.target as HTMLInputElement).value)'
+                                />
+                            </div>
+                            <div class='it-src-actions'>
+                                <button class='it-ack-btn' @click='publishSourceConfig(feed.id)'>
+                                    <Send :size='10' /> APPLY
+                                </button>
+                                <span v-if='sourcePollTime(feed.id)' class='it-mono it-dim' style='font-size:9px'>
+                                    last poll {{ sourcePollTime(feed.id) }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class='it-footer'>
+                    <span class='it-mono'>{{ enabledSourceCount }}/{{ FEED_SOURCE_DEFS.length }} enabled</span>
+                    <span class='it-mono'>config → cmd.intel.feed.{id}.config</span>
+                </div>
+            </template>
+
+            <!-- ── ORP BROWSER ─────────────────────────────────────────────────── -->
+            <template v-if='activeTab === "orp"'>
+                <div class='it-panel-hd'>
+                    <MapPin :size='13' class='it-acc' />
+                    <span class='it-panel-title'>ORP BROWSER</span>
+                    <span class='it-badge'>{{ orpEntities.size }} ENTITIES</span>
+                    <div class='it-live-dot' />
+                </div>
+                <div class='it-filters'>
+                    <div class='it-search-wrap'>
+                        <Search :size='11' class='it-search-icon' />
+                        <input v-model='orpSearch' class='it-search' placeholder='Search operational reference points…' />
+                    </div>
+                    <div class='it-filter-row'>
+                        <button v-for='t in ORP_TYPES' :key='t' class='it-chip' :class='{ active: orpTypeFilter === t }' @click='orpTypeFilter = t'>{{ t }}</button>
+                    </div>
+                </div>
+                <div class='it-orp-grid'>
+                    <div class='it-orp-hdr'>
+                        <span @click='orpSort = "label"' :class='{ "it-sort-active": orpSort === "label" }' class='it-mono it-sort-col'>NAME</span>
+                        <span @click='orpSort = "type"'  :class='{ "it-sort-active": orpSort === "type" }'  class='it-mono it-sort-col'>TYPE</span>
+                        <span @click='orpSort = "lastSeen"' :class='{ "it-sort-active": orpSort === "lastSeen" }' class='it-mono it-sort-col'>LAST SEEN</span>
+                        <span class='it-mono'>COORDS</span>
+                    </div>
+                    <div class='it-list' style='flex:1'>
+                        <div v-if='filteredOrp.length === 0' class='it-empty'>
+                            <MapPin :size='22' class='it-empty-icon' />
+                            <span>NO ORP ENTITIES</span>
+                            <span class='it-muted it-mono'>ent.orp.&gt;</span>
+                        </div>
+                        <div
+                            v-for='orp in filteredOrp' :key='orp.id'
+                            class='it-orp-row'
+                            :class='{ selected: selectedOrp === orp.id }'
+                            @click='selectedOrp = selectedOrp === orp.id ? null : orp.id'
+                        >
+                            <div class='it-orp-name'>
+                                <component :is='orpTypeIcon(orp.type)' :size='11' :style='{ color: entityTypeColor(orp.type) }' />
+                                <span>{{ orp.label || orp.id }}</span>
+                            </div>
+                            <span class='it-chip-sm' :style='{ background: entityTypeColor(orp.type) + "22", color: entityTypeColor(orp.type) }'>{{ orp.type }}</span>
+                            <span class='it-mono it-dim' style='font-size:10px'>{{ timeAgo(orp.lastSeen) }}</span>
+                            <div class='it-orp-coords'>
+                                <span v-if='orp.lat != null' class='it-mono' style='font-size:9px'>
+                                    {{ orp.lat.toFixed(4) }}, {{ orp.lng?.toFixed(4) }}
+                                </span>
+                                <button v-if='orp.lat != null' class='it-copy-btn' @click.stop='copyCoords(orp)'>
+                                    <Copy :size='9' />
+                                </button>
+                            </div>
+                        </div>
+                        <div v-if='selectedOrp' class='it-orp-detail'>
+                            <pre class='it-raw-json'>{{ JSON.stringify(orpEntities.get(selectedOrp)?.raw, null, 2) }}</pre>
+                        </div>
+                    </div>
+                </div>
+                <div class='it-footer'>
+                    <span class='it-mono'>{{ filteredOrp.length }} of {{ orpEntities.size }} ORPs</span>
+                    <span class='it-mono'>LIVE • ent.orp.&gt;</span>
+                </div>
+            </template>
+
+            <!-- ── REGIONS ─────────────────────────────────────────────────────── -->
+            <template v-if='activeTab === "regions"'>
+                <div class='it-panel-hd'>
+                    <Globe :size='13' class='it-acc' />
+                    <span class='it-panel-title'>REGION DOSSIER</span>
+                    <span class='it-badge crit'>{{ criticalRegions }} CRITICAL</span>
+                    <span class='it-badge warn'>{{ highRegions }} HIGH</span>
+                </div>
+                <div class='it-filters'>
+                    <div class='it-search-wrap'>
+                        <Search :size='11' class='it-search-icon' />
+                        <input v-model='regionSearch' class='it-search' placeholder='Search regions…' />
+                    </div>
+                </div>
+                <div class='it-list'>
+                    <div v-for='region in filteredRegions' :key='region.code' class='it-region-row'>
+                        <button class='it-region-btn' @click='selectedRegion = selectedRegion === region.code ? null : region.code'>
+                            <div class='it-region-top'>
+                                <span class='it-risk' :class='riskClass(region.liveRisk)'>{{ riskLabel(region.liveRisk) }}</span>
+                                <span class='it-source it-mono'>{{ region.code }}</span>
+                                <span class='it-region-name'>{{ region.name }}</span>
+                                <span class='it-time it-mono it-dim'>{{ region.region }}</span>
+                            </div>
+                            <div class='it-region-bar'>
+                                <div class='it-region-fill' :style='{ width: (region.liveRisk / 10 * 100) + "%", background: riskColor(region.liveRisk) }' />
+                            </div>
+                            <div class='it-region-meta'>
+                                <span class='it-mono it-dim' style='font-size:9px'>{{ region.intelCount }} intel items</span>
+                                <span v-if='region.liveRisk !== region.baseRisk' class='it-mono' style='font-size:9px;color:#f59e0b'>
+                                    BASE {{ region.baseRisk.toFixed(1) }} → LIVE {{ region.liveRisk.toFixed(1) }}
+                                </span>
+                            </div>
+                        </button>
+                        <div v-if='selectedRegion === region.code' class='it-region-detail'>
+                            <div v-if='region.recentItems.length === 0' class='it-dim it-mono' style='font-size:10px'>No recent intel items.</div>
+                            <div v-for='item in region.recentItems' :key='item.id' class='it-region-intel'>
+                                <span class='it-risk' :class='riskClass(item.riskScore)' style='font-size:9px'>{{ riskLabel(item.riskScore) }}</span>
+                                <span class='it-mono' style='font-size:10px'>{{ item.title.slice(0,100) }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class='it-footer'>
+                    <span class='it-mono'>{{ filteredRegions.length }} regions</span>
+                    <span class='it-mono'>blended with live intel.&gt;</span>
                 </div>
             </template>
 
@@ -281,6 +458,8 @@ import {
     Newspaper, Shield, Globe, Brain, Filter, Search, MapPin, ExternalLink, Zap,
     ShieldAlert, CheckCircle, Ship, Plane, Radio, Satellite, Cloud, AlertTriangle,
     Activity, Flame, Send, Sparkles, Bot, User, Trash2, Loader2,
+    Network, Database, Copy, ChevronDown,
+    Building2, User as UserIcon,
 } from 'lucide-vue-next';
 import { useNatsStore } from '../stores/nats.store';
 import type { Subscription } from 'nats.ws';
@@ -308,30 +487,59 @@ interface WorldFeed {
 
 interface AnalystMsg { id: string; role: 'user' | 'analyst'; content: string; timestamp: number; isError?: boolean; }
 
+interface EntityNode {
+    id: string; type: string; label: string; parent?: string;
+    lastSeen: number; raw: Record<string, unknown>;
+}
+
+interface OrpEntity {
+    id: string; type: string; label: string;
+    lat?: number; lng?: number; radius?: number; description?: string;
+    lastSeen: number; raw: Record<string, unknown>;
+}
+
+interface SourceSetting { key: string; label: string; type: 'text' | 'number' | 'password'; placeholder?: string; }
+interface FeedSourceDef { id: string; name: string; description: string; icon: Component; settings: SourceSetting[]; }
+
+interface RegionRecord {
+    code: string; name: string; region: string; baseRisk: number;
+    liveRisk: number; intelCount: number; recentItems: IntelItem[];
+}
+
 // ── Constants ────────────────────────────────────────────────────────────────
 
 const TABS = [
-    { id: 'feed',     label: 'Intel Feed', icon: Newspaper  },
-    { id: 'threats',  label: 'Threats',    icon: ShieldAlert },
-    { id: 'feeds',    label: 'World Feeds', icon: Globe      },
-    { id: 'analyst',  label: 'AI Analyst', icon: Brain       },
+    { id: 'feed',         label: 'Intel Feed',    icon: Newspaper  },
+    { id: 'threats',      label: 'Threats',       icon: ShieldAlert },
+    { id: 'feeds',        label: 'World Feeds',   icon: Globe       },
+    { id: 'analyst',      label: 'AI Analyst',    icon: Brain       },
+    { id: 'entity-graph', label: 'Entity Graph',  icon: Network     },
+    { id: 'sources',      label: 'Sources',       icon: Database    },
+    { id: 'orp',          label: 'ORP Browser',   icon: MapPin      },
+    { id: 'regions',      label: 'Regions',       icon: Globe       },
 ] as const;
+
+type TabId = (typeof TABS)[number]['id'];
 
 const RISK_LEVELS = ['ALL', 'CRITICAL', 'HIGH', 'ELEVATED', 'LOW'] as const;
 const SEV_LEVELS  = ['ALL', 'CRITICAL', 'HIGH', 'MEDIUM', 'LOW'] as const;
 
+const ENTITY_TYPES = ['ALL', 'aircraft', 'vessel', 'drone', 'person', 'company', 'country', 'event', 'location', 'unknown'];
+
+const ORP_TYPES = ['ALL', 'waypoint', 'boundary', 'objective', 'exclusion', 'vessel', 'aircraft', 'drone', 'person', 'location'];
+
 const FEED_DEFINITIONS: Array<{ name: string; subject: string }> = [
-    { name: 'AIS Ships',        subject: 'tel.ship.>'          },
-    { name: 'ADS-B Aircraft',   subject: 'tel.aircraft.>'      },
-    { name: 'APRS Trackers',    subject: 'tel.aprs.>'          },
-    { name: 'Satellites',       subject: 'tel.satellite.>'     },
-    { name: 'Weather',          subject: 'tel.weather.>'       },
-    { name: 'Hazards',          subject: 'det.hazard.>'        },
-    { name: 'World Events',     subject: 'intel.>'             },
-    { name: 'NOAA Weather',     subject: 'intel.weather.noaa.>'},
-    { name: 'USGS Seismic',     subject: 'intel.seismic.usgs.>'},
-    { name: 'ACLED Conflict',   subject: 'intel.conflict.acled.>'},
-    { name: 'NASA FIRMS Fire',  subject: 'intel.fire.nasa.firms.>'},
+    { name: 'AIS Ships',        subject: 'tel.ship.>'              },
+    { name: 'ADS-B Aircraft',   subject: 'tel.aircraft.>'          },
+    { name: 'APRS Trackers',    subject: 'tel.aprs.>'              },
+    { name: 'Satellites',       subject: 'tel.satellite.>'         },
+    { name: 'Weather',          subject: 'tel.weather.>'           },
+    { name: 'Hazards',          subject: 'det.hazard.>'            },
+    { name: 'World Events',     subject: 'intel.>'                 },
+    { name: 'NOAA Weather',     subject: 'intel.weather.noaa.>'    },
+    { name: 'USGS Seismic',     subject: 'intel.seismic.usgs.>'    },
+    { name: 'ACLED Conflict',   subject: 'intel.conflict.acled.>'  },
+    { name: 'NASA FIRMS Fire',  subject: 'intel.fire.nasa.firms.>' },
 ];
 
 const FEED_ICONS: Record<string, Component> = {
@@ -341,10 +549,59 @@ const FEED_ICONS: Record<string, Component> = {
     'ACLED Conflict': Shield, 'NASA FIRMS Fire': Flame,
 };
 
+const FEED_SOURCE_DEFS: FeedSourceDef[] = [
+    {
+        id: 'noaa', name: 'NOAA Weather', description: 'National Oceanic & Atmospheric Administration weather alerts', icon: Cloud,
+        settings: [
+            { key: 'poll_interval', label: 'Poll Interval (s)', type: 'number', placeholder: '300' },
+            { key: 'areas', label: 'Areas (CSV)', type: 'text', placeholder: 'US,CA' },
+        ],
+    },
+    {
+        id: 'usgs', name: 'USGS Earthquakes', description: 'US Geological Survey real-time seismic event feed', icon: Activity,
+        settings: [
+            { key: 'poll_interval', label: 'Poll Interval (s)', type: 'number', placeholder: '60' },
+            { key: 'min_magnitude', label: 'Min Magnitude', type: 'number', placeholder: '2.5' },
+        ],
+    },
+    {
+        id: 'acled', name: 'ACLED Conflicts', description: 'Armed Conflict Location & Event Data project', icon: Shield,
+        settings: [
+            { key: 'poll_interval', label: 'Poll Interval (s)', type: 'number', placeholder: '3600' },
+            { key: 'api_key', label: 'API Key', type: 'password', placeholder: '••••••••••••••' },
+            { key: 'email', label: 'Email', type: 'text', placeholder: 'ops@example.com' },
+        ],
+    },
+    {
+        id: 'firms', name: 'FIRMS Fire Data', description: 'NASA Fire Information for Resource Management System', icon: Flame,
+        settings: [
+            { key: 'poll_interval', label: 'Poll Interval (s)', type: 'number', placeholder: '600' },
+            { key: 'api_key', label: 'API Key', type: 'password', placeholder: '••••••••••••••' },
+            { key: 'area', label: 'Area', type: 'text', placeholder: 'world' },
+            { key: 'days', label: 'Days Back', type: 'number', placeholder: '1' },
+        ],
+    },
+];
+
 const SUGGESTED_QUERIES = [
     'What are the top 3 active threats on the bus right now?',
     'Summarize recent entity detections by domain',
     'Assess risk level of current intel stream',
+];
+
+const STATIC_REGIONS = [
+    { code: 'UA', name: 'Ukraine',     region: 'Europe',       baseRisk: 9 },
+    { code: 'PS', name: 'Palestine',   region: 'Middle East',  baseRisk: 9 },
+    { code: 'SD', name: 'Sudan',       region: 'Africa',       baseRisk: 8 },
+    { code: 'YE', name: 'Yemen',       region: 'Middle East',  baseRisk: 8 },
+    { code: 'MM', name: 'Myanmar',     region: 'Asia',         baseRisk: 7 },
+    { code: 'SY', name: 'Syria',       region: 'Middle East',  baseRisk: 7 },
+    { code: 'ML', name: 'Mali',        region: 'Africa',       baseRisk: 7 },
+    { code: 'RU', name: 'Russia',      region: 'Europe',       baseRisk: 7 },
+    { code: 'KP', name: 'North Korea', region: 'Asia',         baseRisk: 7 },
+    { code: 'LY', name: 'Libya',       region: 'Africa',       baseRisk: 6 },
+    { code: 'IR', name: 'Iran',        region: 'Middle East',  baseRisk: 6 },
+    { code: 'CN', name: 'China',       region: 'Asia',         baseRisk: 4 },
 ];
 
 const WINDOW_MS = 5000;
@@ -352,7 +609,7 @@ const WINDOW_MS = 5000;
 // ── State ────────────────────────────────────────────────────────────────────
 
 const { nc, sc } = useNatsStore();
-const activeTab   = ref<'feed' | 'threats' | 'feeds' | 'analyst'>('feed');
+const activeTab   = ref<TabId>('feed');
 
 // Feed
 const intelItems      = ref<IntelItem[]>([]);
@@ -377,6 +634,33 @@ const analystLoading = ref(false);
 const analystEl      = ref<HTMLElement | null>(null);
 const analystInputEl = ref<HTMLTextAreaElement | null>(null);
 let analystCounter   = 0;
+
+// Entity Graph
+const entityNodes     = ref<Map<string, EntityNode>>(new Map());
+const entitySearch    = ref('');
+const entityTypeFilter = ref('ALL');
+const selectedEntity  = ref<string | null>(null);
+
+// ORP Browser
+const orpEntities   = ref<Map<string, OrpEntity>>(new Map());
+const orpSearch     = ref('');
+const orpTypeFilter = ref('ALL');
+const orpSort       = ref<'label' | 'type' | 'lastSeen'>('lastSeen');
+const selectedOrp   = ref<string | null>(null);
+
+// Sources
+const sourceConfigs = ref<Record<string, Record<string, string>>>(
+    JSON.parse(localStorage.getItem('omos-source-configs') ?? '{}')
+);
+const sourceStatuses = ref<Record<string, { lastPoll?: string; error?: string }>>({});
+const expandedSource = ref<string | null>(null);
+const enabledSources = ref<Record<string, boolean>>(
+    JSON.parse(localStorage.getItem('omos-source-enabled') ?? '{}')
+);
+
+// Regions
+const regionSearch  = ref('');
+const selectedRegion = ref<string | null>(null);
 
 let subs: Subscription[] = [];
 
@@ -432,6 +716,36 @@ function parseThreatAlert(subject: string, data: string): ThreatAlert | null {
     } catch { return null; }
 }
 
+function parseEntityNode(subject: string, data: string): EntityNode | null {
+    try {
+        const p = JSON.parse(data) as Record<string, unknown>;
+        const parts = subject.split('.');
+        const type = parts[1] ?? 'unknown';
+        const id = (p.id as string) ?? parts.slice(2).join('.') ?? subject;
+        const label = (p.name as string) ?? (p.label as string) ?? (p.callsign as string) ?? id;
+        const parent = (p.parent as string) ?? (p.missionId as string) ?? undefined;
+        return { id, type, label, parent, lastSeen: Date.now(), raw: p };
+    } catch { return null; }
+}
+
+function parseOrpEntity(subject: string, data: string): OrpEntity | null {
+    try {
+        const p = JSON.parse(data) as Record<string, unknown>;
+        const parts = subject.split('.');
+        const id = (p.id as string) ?? parts.slice(2).join('.') ?? subject;
+        const type = (p.type as string) ?? (p.orp_type as string) ?? 'waypoint';
+        return {
+            id, type,
+            label: (p.name as string) ?? (p.label as string) ?? id,
+            lat: typeof p.lat === 'number' ? p.lat : undefined,
+            lng: typeof p.lon === 'number' ? p.lon : typeof p.lng === 'number' ? p.lng : undefined,
+            radius: typeof p.radius === 'number' ? p.radius : undefined,
+            description: (p.description as string) ?? undefined,
+            lastSeen: Date.now(), raw: p,
+        };
+    } catch { return null; }
+}
+
 // ── NATS subscriptions ───────────────────────────────────────────────────────
 
 watch(nc, (conn) => {
@@ -441,6 +755,8 @@ watch(nc, (conn) => {
     intelItems.value = [];
     threatAlerts.value = [];
     feeds.value = FEED_DEFINITIONS.map(f => ({ ...f, status: 'paused', msgRate: 0, lastMessage: null, totalMessages: 0 }));
+    entityNodes.value = new Map();
+    orpEntities.value = new Map();
     if (!conn) return;
 
     // Intel feed
@@ -504,6 +820,57 @@ watch(nc, (conn) => {
         });
     }, 1000);
 
+    // Entity Graph — subscribe ent.> but skip ent.orp.> (handled separately)
+    try {
+        const sub = conn.subscribe('ent.>');
+        subs.push(sub);
+        (async () => {
+            for await (const msg of sub) {
+                if (msg.subject.startsWith('ent.orp.')) continue;
+                const node = parseEntityNode(msg.subject, sc.decode(msg.data));
+                if (!node) continue;
+                const map = new Map(entityNodes.value);
+                map.set(node.id, node);
+                if (map.size > 500) {
+                    const oldest = [...map.entries()].sort((a, b) => a[1].lastSeen - b[1].lastSeen)[0];
+                    if (oldest) map.delete(oldest[0]);
+                }
+                entityNodes.value = map;
+            }
+        })().catch(() => {});
+    } catch { /* ignore */ }
+
+    // ORP Browser
+    try {
+        const sub = conn.subscribe('ent.orp.>');
+        subs.push(sub);
+        (async () => {
+            for await (const msg of sub) {
+                const orp = parseOrpEntity(msg.subject, sc.decode(msg.data));
+                if (!orp) continue;
+                const map = new Map(orpEntities.value);
+                map.set(orp.id, orp);
+                orpEntities.value = map;
+            }
+        })().catch(() => {});
+    } catch { /* ignore */ }
+
+    // Source statuses
+    for (const feed of FEED_SOURCE_DEFS) {
+        try {
+            const sub = conn.subscribe(`intel.${feed.id}.status`);
+            subs.push(sub);
+            (async () => {
+                for await (const msg of sub) {
+                    try {
+                        const p = JSON.parse(sc.decode(msg.data)) as { last_poll_ts?: string; last_error?: string };
+                        sourceStatuses.value = { ...sourceStatuses.value, [feed.id]: p };
+                    } catch { /* ignore */ }
+                }
+            })().catch(() => {});
+        } catch { /* ignore */ }
+    }
+
 }, { immediate: true });
 
 // Auto-dismiss acked threats after 30s
@@ -536,6 +903,74 @@ const unackCount      = computed(() => threatAlerts.value.filter(a => !a.acknowl
 const liveCount       = computed(() => feeds.value.filter(f => f.status === 'live').length);
 const totalFeedMsgs   = computed(() => feeds.value.reduce((a, f) => a + f.totalMessages, 0));
 
+const filteredEntityGroups = computed(() => {
+    const entries = [...entityNodes.value.values()];
+    const filtered = entries.filter(e => {
+        if (entityTypeFilter.value !== 'ALL' && e.type !== entityTypeFilter.value) return false;
+        if (entitySearch.value && !e.id.toLowerCase().includes(entitySearch.value.toLowerCase()) &&
+            !e.label.toLowerCase().includes(entitySearch.value.toLowerCase())) return false;
+        return true;
+    });
+    const groups: Record<string, EntityNode[]> = {};
+    for (const e of filtered) {
+        if (!groups[e.type]) groups[e.type] = [];
+        groups[e.type]!.push(e);
+    }
+    return groups;
+});
+
+const filteredOrp = computed(() => {
+    const entries = [...orpEntities.value.values()];
+    return entries
+        .filter(e => {
+            if (orpTypeFilter.value !== 'ALL' && e.type !== orpTypeFilter.value) return false;
+            if (orpSearch.value && !e.label.toLowerCase().includes(orpSearch.value.toLowerCase()) &&
+                !e.id.toLowerCase().includes(orpSearch.value.toLowerCase())) return false;
+            return true;
+        })
+        .sort((a, b) => {
+            if (orpSort.value === 'label') return a.label.localeCompare(b.label);
+            if (orpSort.value === 'type') return a.type.localeCompare(b.type);
+            return b.lastSeen - a.lastSeen;
+        });
+});
+
+const enabledSourceCount = computed(() =>
+    FEED_SOURCE_DEFS.filter(f => enabledSources.value[f.id]).length
+);
+
+const regionData = computed<RegionRecord[]>(() =>
+    STATIC_REGIONS.map(r => {
+        const related = intelItems.value.filter(i =>
+            i.domain.toLowerCase().includes(r.code.toLowerCase()) ||
+            i.title.toLowerCase().includes(r.name.toLowerCase()) ||
+            i.tags.some(t => t.toLowerCase().includes(r.name.toLowerCase()))
+        );
+        const boost = related.length > 0
+            ? Math.min(related.reduce((a, b) => a + b.riskScore, 0) / related.length, 10) * 0.3
+            : 0;
+        return {
+            ...r,
+            liveRisk: Math.min(10, r.baseRisk * 0.7 + boost),
+            intelCount: related.length,
+            recentItems: related.slice(0, 3),
+        };
+    }).sort((a, b) => b.liveRisk - a.liveRisk)
+);
+
+const filteredRegions = computed(() =>
+    regionSearch.value
+        ? regionData.value.filter(r =>
+            r.name.toLowerCase().includes(regionSearch.value.toLowerCase()) ||
+            r.code.toLowerCase().includes(regionSearch.value.toLowerCase()) ||
+            r.region.toLowerCase().includes(regionSearch.value.toLowerCase())
+          )
+        : regionData.value
+);
+
+const criticalRegions = computed(() => regionData.value.filter(r => r.liveRisk >= 8).length);
+const highRegions     = computed(() => regionData.value.filter(r => r.liveRisk >= 6 && r.liveRisk < 8).length);
+
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
 function riskLabel(score: number): string {
@@ -549,6 +984,12 @@ function riskClass(score: number): string {
     if (score >= 6) return 'high';
     if (score >= 4) return 'elev';
     return 'low';
+}
+function riskColor(score: number): string {
+    if (score >= 8) return '#f85149';
+    if (score >= 6) return '#f59e0b';
+    if (score >= 4) return 'rgba(255,255,255,0.3)';
+    return '#22c55e';
 }
 function timeAgo(ts: number): string {
     const m = Math.floor((Date.now() - ts) / 60000);
@@ -573,10 +1014,61 @@ function fmtTime(ts: number): string {
 }
 function feedIcon(name: string): Component { return FEED_ICONS[name] ?? Globe; }
 
+const ENTITY_TYPE_COLORS: Record<string, string> = {
+    aircraft: '#00e5ff', vessel: '#00bcd4', company: '#d4af37', person: '#b388ff',
+    country: '#76ff03', event: '#ff9500', sanction: '#ff1744', drone: '#ff6d00',
+    location: '#00e676', unknown: '#888888', waypoint: '#4a9eff', boundary: '#f59e0b',
+    objective: '#22c55e', exclusion: '#f85149',
+};
+const ENTITY_TYPE_ICONS: Record<string, Component> = {
+    aircraft: Plane, vessel: Ship, drone: Radio, person: UserIcon, company: Building2,
+    country: Globe, event: Newspaper, sanction: ShieldAlert, location: MapPin,
+    unknown: Network, waypoint: MapPin, boundary: Globe, objective: Globe, exclusion: ShieldAlert,
+};
+function entityTypeColor(type: string): string { return ENTITY_TYPE_COLORS[type] ?? '#888'; }
+function entityTypeIcon(type: string): Component { return ENTITY_TYPE_ICONS[type] ?? Network; }
+function orpTypeIcon(type: string): Component { return ENTITY_TYPE_ICONS[type] ?? MapPin; }
+
 function acknowledgeAlert(alert: ThreatAlert) {
     threatAlerts.value = threatAlerts.value.map(a => a.id === alert.id ? { ...a, acknowledged: true } : a);
     const conn = nc.value;
     if (conn) conn.publish(`cmd.alert.${alert.id}.ack`, new TextEncoder().encode(JSON.stringify({ id: alert.id, timestamp: Date.now() })));
+}
+
+function copyCoords(orp: OrpEntity) {
+    if (orp.lat != null && orp.lng != null) {
+        void navigator.clipboard.writeText(`${orp.lat.toFixed(6)},${orp.lng.toFixed(6)}`);
+    }
+}
+
+// Sources
+function sourceEnabled(id: string): boolean { return enabledSources.value[id] ?? false; }
+function sourceStatus(id: string): 'live' | 'paused' {
+    const s = sourceStatuses.value[id];
+    return s?.last_poll_ts && !s.last_error ? 'live' : 'paused';
+}
+function sourcePollTime(id: string): string {
+    const s = sourceStatuses.value[id];
+    if (!s?.last_poll_ts) return '';
+    try { return timeAgoMs(new Date(s.last_poll_ts).getTime()); } catch { return ''; }
+}
+function getSourceSetting(feedId: string, key: string): string {
+    return sourceConfigs.value[feedId]?.[key] ?? '';
+}
+function setSourceSetting(feedId: string, key: string, value: string) {
+    const cfg = { ...(sourceConfigs.value[feedId] ?? {}), [key]: value };
+    sourceConfigs.value = { ...sourceConfigs.value, [feedId]: cfg };
+    localStorage.setItem('omos-source-configs', JSON.stringify(sourceConfigs.value));
+}
+function toggleSource(id: string) {
+    enabledSources.value = { ...enabledSources.value, [id]: !enabledSources.value[id] };
+    localStorage.setItem('omos-source-enabled', JSON.stringify(enabledSources.value));
+}
+function publishSourceConfig(feedId: string) {
+    const conn = nc.value;
+    if (!conn) return;
+    const cfg = { ...(sourceConfigs.value[feedId] ?? {}), enabled: enabledSources.value[feedId] ?? false };
+    conn.publish(`cmd.intel.feed.${feedId}.config`, new TextEncoder().encode(JSON.stringify(cfg)));
 }
 
 function renderMd(text: string): string {
@@ -772,4 +1264,58 @@ function onAnalystKey(e: KeyboardEvent) { if (e.key === 'Enter' && !e.shiftKey) 
 .it-analyst-send:not(:disabled):hover { background:rgba(74,158,255,0.2); }
 @keyframes spin { to { transform:rotate(360deg); } }
 .it-spin { animation:spin 1s linear infinite; }
+
+/* Entity Graph */
+.it-ent-group-hd { display:flex; align-items:center; gap:6px; padding:5px 12px; background:rgba(255,255,255,0.02); border-bottom:1px solid rgba(255,255,255,0.06); font-size:9px; font-family:monospace; letter-spacing:0.08em; color:rgba(255,255,255,0.35); }
+.it-ent-row { display:flex; align-items:center; gap:8px; padding:7px 12px 7px 24px; border-bottom:1px solid rgba(255,255,255,0.03); cursor:pointer; transition:background .1s; }
+.it-ent-row:hover { background:rgba(255,255,255,0.02); }
+.it-ent-row.selected { background:rgba(74,158,255,0.06); }
+.it-ent-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+.it-ent-body { flex:1; min-width:0; }
+.it-ent-id { font-size:11px; color:#e6edf3; }
+.it-ent-parent { font-size:9px; }
+.it-ent-detail { padding:8px 12px 10px 24px; background:rgba(0,0,0,0.2); border-bottom:1px solid rgba(255,255,255,0.06); }
+.it-raw-json { font-family:monospace; font-size:9px; color:rgba(255,255,255,0.5); white-space:pre-wrap; word-break:break-all; max-height:140px; overflow-y:auto; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.07); border-radius:4px; padding:6px 8px; margin:0; }
+
+/* Sources */
+.it-src-card { border-bottom:1px solid rgba(255,255,255,0.05); }
+.it-src-hd { display:flex; align-items:center; gap:8px; padding:10px 12px; cursor:pointer; transition:background .1s; }
+.it-src-hd:hover { background:rgba(255,255,255,0.02); }
+.it-src-meta { flex:1; min-width:0; }
+.it-src-name { font-size:11px; color:#e6edf3; }
+.it-src-desc { font-size:9px; }
+.it-src-status { display:flex; align-items:center; gap:4px; }
+.it-toggle { padding:2px 8px; border-radius:4px; font-size:10px; font-family:monospace; font-weight:700; cursor:pointer; transition:all .12s; border:1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.3); }
+.it-toggle.on { background:rgba(34,197,94,0.1); border-color:rgba(34,197,94,0.3); color:#22c55e; }
+.it-src-settings { padding:10px 12px; background:rgba(0,0,0,0.15); border-top:1px solid rgba(255,255,255,0.05); display:flex; flex-direction:column; gap:8px; }
+.it-src-field { display:flex; flex-direction:column; gap:3px; }
+.it-src-label { font-size:9px; text-transform:uppercase; letter-spacing:0.07em; color:rgba(255,255,255,0.35); }
+.it-src-actions { display:flex; align-items:center; gap:8px; }
+
+/* ORP Browser */
+.it-orp-grid { flex:1; overflow:hidden; display:flex; flex-direction:column; }
+.it-orp-hdr { display:grid; grid-template-columns:1fr 80px 80px 100px; gap:6px; padding:5px 12px; border-bottom:1px solid rgba(255,255,255,0.07); flex-shrink:0; }
+.it-sort-col { cursor:pointer; transition:color .1s; }
+.it-sort-col:hover { color:rgba(255,255,255,0.6); }
+.it-sort-active { color:#4a9eff !important; }
+.it-orp-row { display:grid; grid-template-columns:1fr 80px 80px 100px; gap:6px; padding:8px 12px; border-bottom:1px solid rgba(255,255,255,0.04); align-items:center; cursor:pointer; transition:background .1s; }
+.it-orp-row:hover { background:rgba(255,255,255,0.02); }
+.it-orp-row.selected { background:rgba(74,158,255,0.05); }
+.it-orp-name { display:flex; align-items:center; gap:6px; font-size:11px; color:#e6edf3; min-width:0; }
+.it-orp-coords { display:flex; align-items:center; gap:4px; }
+.it-copy-btn { background:none; border:none; cursor:pointer; color:rgba(255,255,255,0.3); padding:1px; border-radius:3px; display:flex; transition:color .1s; }
+.it-copy-btn:hover { color:#4a9eff; }
+.it-orp-detail { padding:8px 12px; background:rgba(0,0,0,0.2); border-bottom:1px solid rgba(255,255,255,0.06); }
+
+/* Regions */
+.it-region-row { border-bottom:1px solid rgba(255,255,255,0.04); }
+.it-region-btn { width:100%; text-align:left; padding:8px 12px; background:transparent; border:none; cursor:pointer; display:flex; flex-direction:column; gap:4px; transition:background .1s; }
+.it-region-btn:hover { background:rgba(255,255,255,0.02); }
+.it-region-top { display:flex; align-items:center; gap:6px; }
+.it-region-name { font-size:11px; color:#e6edf3; flex:1; }
+.it-region-bar { height:3px; background:rgba(255,255,255,0.06); border-radius:2px; overflow:hidden; }
+.it-region-fill { height:100%; border-radius:2px; transition:width .3s; }
+.it-region-meta { display:flex; align-items:center; justify-content:space-between; }
+.it-region-detail { padding:6px 12px 10px; background:rgba(0,0,0,0.15); border-bottom:1px solid rgba(255,255,255,0.05); display:flex; flex-direction:column; gap:4px; }
+.it-region-intel { display:flex; align-items:center; gap:6px; padding:3px 0; }
 </style>
