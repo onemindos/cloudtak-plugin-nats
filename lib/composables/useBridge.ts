@@ -34,7 +34,8 @@ export interface PromptEvent {
     totalCostUsd?: number;
 }
 
-type PromptCallback = (ev: PromptEvent) => void;
+type PromptCallback  = (ev: PromptEvent) => void;
+type RawMsgHandler   = (msg: Record<string, unknown>) => void;
 
 // ── Singleton state ──────────────────────────────────────────────────────────
 
@@ -52,12 +53,15 @@ let reconnAttempt  = 0;
 let shouldReconn   = false;
 let reqCounter     = 0;
 const callbacks    = new Map<string, PromptCallback>();
+const rawHandlers  = new Set<RawMsgHandler>();
 
 function nextId() { return `req-${Date.now()}-${++reqCounter}`; }
 
 function handleRaw(data: string) {
     try {
         const msg = JSON.parse(data) as Record<string, unknown>;
+        // Notify all raw handlers
+        rawHandlers.forEach(h => { try { h(msg); } catch { /* ignore */ } });
         switch (msg.kind) {
             case 'ready':
                 natsServer.value = (msg.natsServer as string) ?? null;
@@ -162,6 +166,19 @@ export function useBridge() {
             if (ws?.readyState === WebSocket.OPEN)
                 ws.send(JSON.stringify({ kind: 'cancel', id }));
             callbacks.delete(id);
+        },
+
+        sendRaw(msg: Record<string, unknown>): boolean {
+            if (ws?.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify(msg));
+                return true;
+            }
+            return false;
+        },
+
+        onMessage(handler: RawMsgHandler): () => void {
+            rawHandlers.add(handler);
+            return () => rawHandlers.delete(handler);
         },
     };
 }
